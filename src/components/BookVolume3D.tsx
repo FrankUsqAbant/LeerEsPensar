@@ -30,7 +30,7 @@ export function BookVolume3D({
   const isDarkCloth = book.coverTheme.inkColor.toUpperCase().startsWith('#F');
 
   return (
-    <div className="relative shrink-0 w-[166px] sm:w-[178px] lg:w-[186px] flex flex-col items-stretch">
+    <div className="relative shrink-0 w-[112px] sm:w-[124px] lg:w-[134px] flex flex-col items-stretch">
       {/* Sombra proyectada diagonalmente detrás del volumen contra el fondo de la estantería */}
       <div
         aria-hidden="true"
@@ -50,7 +50,7 @@ export function BookVolume3D({
           prefersReducedMotion
             ? undefined
             : {
-                y: -14,
+                y: -8,
                 scale: 1.035,
                 rotateZ: 0,
                 rotateY: -11,
@@ -130,7 +130,7 @@ export function BookVolume3D({
           )}
 
           {/* Superficie editorial de la portada */}
-          <div className="relative flex-1 p-3.5 sm:p-4 flex flex-col justify-between overflow-hidden">
+          <div className="relative flex-1 p-2 sm:p-2.5 flex flex-col justify-between overflow-hidden">
             {/* Micro-textura de lino tejido */}
             <span
               aria-hidden="true"
@@ -219,7 +219,7 @@ export function BookVolume3D({
                   }}
                 >
                   <h3
-                    className="font-serif text-[16px] sm:text-[17px] font-medium leading-[1.16] line-clamp-3"
+                    className="font-serif text-[13px] sm:text-[14px] font-medium leading-[1.16] line-clamp-3"
                     style={{ color: book.coverTheme.inkColor }}
                   >
                     {book.title}
@@ -227,7 +227,7 @@ export function BookVolume3D({
                 </div>
               ) : (
                 <h3
-                  className="font-serif text-[17px] sm:text-[18.5px] font-medium leading-[1.16] line-clamp-3 transition-opacity group-hover:opacity-90"
+                  className="font-serif text-[13.5px] sm:text-[14.5px] font-medium leading-[1.16] line-clamp-3 transition-opacity group-hover:opacity-90"
                   style={{ color: book.coverTheme.inkColor }}
                 >
                   {book.title}

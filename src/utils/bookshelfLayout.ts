@@ -92,8 +92,8 @@ export function filterBooksForShelf(
 
 export function computeBookHeightPx(pageCount: number): number {
   const clamped = Math.max(60, Math.min(240, pageCount));
-  // Rango elegante entre 198px y 236px
-  return Math.round(198 + ((clamped - 60) / 180) * 38);
+  // Rango compacto (128–144px) para ver las 3 repisas de un vistazo
+  return Math.round(128 + ((clamped - 60) / 180) * 16);
 }
 
 /**
@@ -232,7 +232,7 @@ export function computePhysicalBookStyle(
   slotIndex: number,
 ): PhysicalBookStyle {
   const clampedPages = Math.max(60, Math.min(240, pageCount));
-  const pageBlockWidthPx = Math.round(7 + ((clampedPages - 60) / 180) * 6);
+  const pageBlockWidthPx = Math.round(5 + ((clampedPages - 60) / 180) * 4);
 
   const isAngled = (rowIndex + slotIndex) % 4 === 2;
 
@@ -246,7 +246,7 @@ export function computePhysicalBookStyle(
   return {
     stance: isAngled ? 'angled' : 'frontal',
     pageBlockWidthPx,
-    spineWidthPx: isAngled ? 16 : 13,
+    spineWidthPx: isAngled ? 12 : 10,
     leanDeg,
   };
 }

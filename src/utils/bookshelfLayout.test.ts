@@ -87,9 +87,9 @@ test('computeBookshelfLayout supports accent-insensitive search across shelves',
 });
 
 test('computeBookHeightPx bounds heights cleanly', () => {
-  assert.equal(computeBookHeightPx(60), 198);
-  assert.equal(computeBookHeightPx(240), 236);
-  assert.equal(computeBookHeightPx(999), 236);
+  assert.equal(computeBookHeightPx(60), 128);
+  assert.equal(computeBookHeightPx(240), 144);
+  assert.equal(computeBookHeightPx(999), 144);
 });
 
 test('computePhysicalBookStyle scales cream page thickness and sets natural stances', () => {
@@ -97,8 +97,8 @@ test('computePhysicalBookStyle scales cream page thickness and sets natural stan
   const thick = computePhysicalBookStyle(240, 0, 2);
 
   assert.equal(thin.stance, 'frontal');
-  assert.equal(thin.pageBlockWidthPx, 7);
+  assert.equal(thin.pageBlockWidthPx, 5);
   assert.equal(thick.stance, 'angled');
-  assert.equal(thick.pageBlockWidthPx, 13);
-  assert.equal(thick.spineWidthPx, 16);
+  assert.equal(thick.pageBlockWidthPx, 9);
+  assert.equal(thick.spineWidthPx, 12);
 });

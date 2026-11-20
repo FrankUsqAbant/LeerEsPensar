@@ -158,7 +158,7 @@ function SlidingShelfRow({
         <div
           ref={trackRef}
           data-testid={`shelf-track-${row.index}`}
-          className="book-perspective-stage relative z-10 mx-11 sm:mx-14 flex gap-5 sm:gap-6 lg:gap-7 items-end overflow-x-auto no-scrollbar pt-5 pb-0 px-1.5 sm:px-2"
+          className="book-perspective-stage relative z-10 mx-9 sm:mx-12 flex gap-3 sm:gap-4 lg:gap-5 items-end overflow-x-auto no-scrollbar pt-2 sm:pt-2.5 pb-0 px-1.5 sm:px-2"
         >
           {row.slots.map((slot, slotIndex) => (
             <BookVolume3D
@@ -181,7 +181,7 @@ function SlidingShelfRow({
       {/* Repisa de roble natural con tablero superior, canto frontal biselado y sombras */}
       <div className="relative">
         <div
-          className="relative z-10 h-4 mx-0 sm:mx-1 rounded-t-[2px] overflow-hidden border-t border-[#F4E3CA]"
+          className="relative z-10 h-3 mx-0 sm:mx-1 rounded-t-[2px] overflow-hidden border-t border-[#F4E3CA]"
           style={{ background: OAK_DECK_GRADIENT }}
         >
           <div
@@ -191,7 +191,7 @@ function SlidingShelfRow({
         </div>
 
         <div
-          className="relative z-20 h-[26px] w-full rounded-b-[3px] overflow-hidden border-t border-[#F7E9D2]/85 border-b border-[#5E3D1E]/70 shadow-[inset_0_1px_0_rgba(255,244,224,0.7),inset_0_-3px_4px_rgba(52,30,10,0.35),0_16px_26px_-8px_rgba(32,20,8,0.45)]"
+          className="relative z-20 h-4 w-full rounded-b-[3px] overflow-hidden border-t border-[#F7E9D2]/85 border-b border-[#5E3D1E]/70 shadow-[inset_0_1px_0_rgba(255,244,224,0.7),inset_0_-3px_4px_rgba(52,30,10,0.35),0_16px_26px_-8px_rgba(32,20,8,0.45)]"
           style={{ background: OAK_LIP_GRADIENT }}
         >
         </div>
@@ -199,7 +199,7 @@ function SlidingShelfRow({
         {/* Sombra proyectada por la tabla sobre la pared interior del mueble */}
         <div
           aria-hidden="true"
-          className="pointer-events-none relative z-0 h-7 mx-1"
+          className="pointer-events-none relative z-0 h-4 mx-1"
           style={{
             background:
               'linear-gradient(180deg, rgba(42,26,12,0.3) 0%, rgba(42,26,12,0.12) 45%, rgba(42,26,12,0) 100%)',
@@ -207,10 +207,10 @@ function SlidingShelfRow({
         />
 
         {/* Ménsulas laterales talladas */}
-        <div className="pointer-events-none relative z-10 -mt-7 flex justify-between px-5 sm:px-10">
+        <div className="pointer-events-none relative z-10 -mt-4 flex justify-between px-5 sm:px-10">
           <div
             aria-hidden="true"
-            className="w-4 h-7 rounded-b-sm border-x border-b border-[#6C4928]/45 shadow-[4px_6px_10px_rgba(38,24,12,0.24)]"
+            className="w-3 h-4 rounded-b-sm border-x border-b border-[#6C4928]/45 shadow-[4px_6px_10px_rgba(38,24,12,0.24)]"
             style={{
               background:
                 'linear-gradient(90deg, rgba(255,236,204,0.25) 0%, rgba(62,36,14,0.45) 100%), url(/assets/oak-grain-vertical.jpg) center / auto 400px',
@@ -218,7 +218,7 @@ function SlidingShelfRow({
           />
           <div
             aria-hidden="true"
-            className="w-4 h-7 rounded-b-sm border-x border-b border-[#6C4928]/45 shadow-[4px_6px_10px_rgba(38,24,12,0.24)]"
+            className="w-3 h-4 rounded-b-sm border-x border-b border-[#6C4928]/45 shadow-[4px_6px_10px_rgba(38,24,12,0.24)]"
             style={{
               background:
                 'linear-gradient(90deg, rgba(255,236,204,0.25) 0%, rgba(62,36,14,0.45) 100%), url(/assets/oak-grain-vertical.jpg) center / auto 400px',
@@ -290,7 +290,7 @@ export function BotanicalBookshelfHero({
     <section
       id="biblioteca"
       aria-label="Estantería editorial LeerEsPensar"
-      className="relative overflow-hidden bg-[#DCCDB3] pt-5 sm:pt-7 pb-10 sm:pb-14"
+      className="relative overflow-hidden bg-[#DCCDB3] pt-4 sm:pt-5 pb-6 sm:pb-8"
     >
       {/* Título accesible oculto visualmente para jerarquía semántica */}
       <h1 className="sr-only">LeerEsPensar — Biblioteca Editorial Libre</h1>
@@ -339,7 +339,7 @@ export function BotanicalBookshelfHero({
         }}
       />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 space-y-5 sm:space-y-6">
+      <div className="relative z-10 max-w-[84rem] mx-auto px-3 sm:px-5 lg:px-6 space-y-3 sm:space-y-4">
         {/* Únicamente Buscador, Géneros y Escritores */}
         <div
           data-testid="bookshelf-filter-bar"
@@ -437,8 +437,8 @@ export function BotanicalBookshelfHero({
 
         <div className="relative">
           {/* Hiedra trasera (detrás del mueble, más oscura) */}
-          <img src="/assets/ivy-right.webp" alt="" aria-hidden="true" className="ivy ivy-back pointer-events-none select-none absolute z-0 -left-16 -top-6 h-[calc(100%+24px)] w-auto" />
-          <img src="/assets/ivy-left.webp" alt="" aria-hidden="true" className="ivy ivy-back pointer-events-none select-none absolute z-0 -right-16 -top-6 h-[calc(100%+24px)] w-auto" />
+          <img src="/assets/ivy-right.webp" alt="" aria-hidden="true" className="ivy ivy-back pointer-events-none select-none absolute z-0 -left-10 sm:-left-12 -top-4 h-[calc(100%+16px)] w-auto" />
+          <img src="/assets/ivy-left.webp" alt="" aria-hidden="true" className="ivy ivy-back pointer-events-none select-none absolute z-0 -right-10 sm:-right-12 -top-4 h-[calc(100%+16px)] w-auto" />
         {/* Mueble-estantería arquitectónico en nicho cálido con pilares laterales de roble */}
         <div
           data-testid="botanical-bookshelf"
@@ -447,7 +447,7 @@ export function BotanicalBookshelfHero({
           {/* Moldura superior arquitectónica en roble */}
           <div
             aria-hidden="true"
-            className="h-5 w-full border-b border-[#5E3D1E]/60 shadow-[inset_0_1px_0_rgba(255,244,224,0.6),0_6px_14px_rgba(42,26,12,0.25)]"
+            className="h-3.5 w-full border-b border-[#5E3D1E]/60 shadow-[inset_0_1px_0_rgba(255,244,224,0.6),0_6px_14px_rgba(42,26,12,0.25)]"
             style={{ background: OAK_LIP_GRADIENT }}
           />
 
@@ -464,7 +464,7 @@ export function BotanicalBookshelfHero({
           />
 
           {/* Interior de las repisas */}
-          <div className="relative px-2 sm:px-3 pt-4 pb-3 space-y-6 sm:space-y-8">
+          <div className="relative px-2 sm:px-3 pt-2.5 sm:pt-3 pb-2 space-y-2 sm:space-y-3">
             {shelfData.rows.length === 0 ? (
               <div className="py-14 px-6 text-center space-y-3">
                 <p className="font-serif text-xl text-[#1A1917]">
@@ -497,13 +497,13 @@ export function BotanicalBookshelfHero({
           {/* Zócalo inferior en roble */}
           <div
             aria-hidden="true"
-            className="h-5 w-full border-t border-[#F4E3CA]"
+            className="h-3.5 w-full border-t border-[#F4E3CA]"
             style={{ background: OAK_LIP_GRADIENT }}
           />
         </div>
           {/* Hiedra delantera (sobre los pilares, bajo las flechas) */}
-          <img src="/assets/ivy-left.webp" alt="" aria-hidden="true" className="ivy ivy-front ivy-front-left pointer-events-none select-none absolute z-[35] -left-[68px] top-8 h-[calc(100%-24px)] w-auto" />
-          <img src="/assets/ivy-right.webp" alt="" aria-hidden="true" className="ivy ivy-front ivy-front-right pointer-events-none select-none absolute z-[35] -right-[68px] top-2 h-[calc(100%-8px)] w-auto" />
+          <img src="/assets/ivy-left.webp" alt="" aria-hidden="true" className="ivy ivy-front ivy-front-left pointer-events-none select-none absolute z-[35] -left-[44px] sm:-left-[52px] top-5 h-[calc(100%-16px)] w-auto" />
+          <img src="/assets/ivy-right.webp" alt="" aria-hidden="true" className="ivy ivy-front ivy-front-right pointer-events-none select-none absolute z-[35] -right-[44px] sm:-right-[52px] top-1 h-[calc(100%-6px)] w-auto" />
         </div>
       </div>
 
