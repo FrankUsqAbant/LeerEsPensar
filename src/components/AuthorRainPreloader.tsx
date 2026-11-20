@@ -1,10 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { BRAND_CONFIG } from '../config/brand';
-import { preloadEditorialAssets, type PreloadStage } from '../utils/assetPreloader';
+import { preloadEditorialAssets } from '../utils/assetPreloader';
 import {
+  PRELOADER_FADE_MS,
+  PRELOADER_MAX_MS,
+  PRELOADER_MIN_MS,
   buildPreloaderWriterList,
   generateAuthorRainDrops,
+  rainDrift,
+  rainFallEase,
+  rainOpacity,
   type RainWriterDrop,
 } from '../utils/authorRainPhysics';
 
@@ -14,36 +20,77 @@ export interface AuthorRainPreloaderProps {
 }
 
 const TONE_COLOR_CLASS: Record<RainWriterDrop['tone'], string> = {
-  ink: 'text-[#1A1917]/85',
-  stone: 'text-[#6B665E]',
-  moss: 'text-[#4A5D4E]',
-  terracotta: 'text-[#B45335]/90',
+  ink: 'text-[#1A1917]/80',
+  stone: 'text-[#5C564E]/88',
+  moss: 'text-[#4A5D4E]/90',
+  terracotta: 'text-[#B45335]/86',
 };
+
+function makeParchmentGrainUrl(): string | null {
+  if (typeof document === 'undefined') return null;
+  try {
+    const size = 160;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.clearRect(0, 0, size, size);
+    for (let i = 0; i < 520; i += 1) {
+      const x = (i * 47) % size;
+      const y = (i * 89 + Math.floor(i / 7) * 13) % size;
+      const shade =
+        i % 3 === 0
+          ? 'rgba(62,42,20,0.07)'
+          : i % 3 === 1
+            ? 'rgba(255,244,220,0.08)'
+            : 'rgba(140,96,48,0.05)';
+      ctx.fillStyle = shade;
+      ctx.fillRect(x, y, i % 5 === 0 ? 1.6 : 1, i % 4 === 0 ? 1.6 : 1);
+    }
+    return canvas.toDataURL('image/png');
+  } catch {
+    return null;
+  }
+}
+
+function progressLabel(progress: number): string {
+  if (progress < 40) return 'Abriendo el archivo…';
+  if (progress < 80) return 'Las voces llegan despacio…';
+  return 'Biblioteca lista para leer';
+}
 
 export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloaderProps) {
   const prefersReducedMotion = useReducedMotion();
-  const [viewportSize, setViewportSize] = useState<{ width: number; height: number }>(() => {
-    if (typeof window === 'undefined') return { width: 1440, height: 900 };
-    return { width: window.innerWidth, height: window.innerHeight };
-  });
-
-  const [stage, setStage] = useState<PreloadStage>({
-    progress: 0,
-    label: 'Abriendo archivo literario...',
-    done: false,
-  });
+  const [grainUrl] = useState<string | null>(() => makeParchmentGrainUrl());
   const [paperTextureUrl, setPaperTextureUrl] = useState<string | null>(null);
   const [isExiting, setIsExiting] = useState(false);
 
   const drops = useMemo(() => {
-    const names = buildPreloaderWriterList(18);
-    return generateAuthorRainDrops(names, viewportSize.width);
-  }, [viewportSize.width]);
+    const width = typeof window === 'undefined' ? 1440 : window.innerWidth;
+    return generateAuthorRainDrops(buildPreloaderWriterList(18), width);
+  }, []);
+
+  const dropRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const barRef = useRef<HTMLDivElement | null>(null);
+  const barTrackRef = useRef<HTMLDivElement | null>(null);
+  const labelRef = useRef<HTMLSpanElement | null>(null);
+  const percentRef = useRef<HTMLSpanElement | null>(null);
+  const viewportRef = useRef({
+    width: typeof window === 'undefined' ? 1440 : window.innerWidth,
+    height: typeof window === 'undefined' ? 900 : window.innerHeight,
+  });
+  const paperRef = useRef<string | null>(null);
+  const assetsReadyRef = useRef(false);
+  const exitingRef = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const onResize = () => {
-      setViewportSize({ width: window.innerWidth, height: window.innerHeight });
+      viewportRef.current = { width: window.innerWidth, height: window.innerHeight };
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
@@ -51,44 +98,102 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
 
   useEffect(() => {
     if (!visible) return;
+
     const controller = new AbortController();
-    let revealTimer: number | undefined;
-    let finishTimer: number | undefined;
-
+    let fadeTimer: number | undefined;
+    let raf = 0;
+    const startedAt = performance.now();
+    exitingRef.current = false;
+    assetsReadyRef.current = false;
     setIsExiting(false);
-    setStage({ progress: 0, label: 'Abriendo archivo literario...', done: false });
 
-    void preloadEditorialAssets((nextStage) => {
-      setStage(nextStage);
+    const beginExit = () => {
+      if (exitingRef.current || controller.signal.aborted) return;
+      exitingRef.current = true;
+      setIsExiting(true);
+      fadeTimer = window.setTimeout(() => {
+        if (!controller.signal.aborted) {
+          onCompleteRef.current({ paperTextureUrl: paperRef.current });
+        }
+      }, prefersReducedMotion ? 180 : PRELOADER_FADE_MS);
+    };
+
+    void preloadEditorialAssets(() => {
+      // El progreso visible avanza con el tiempo, sin saltos del precargado.
     }, controller.signal).then((assets) => {
       if (controller.signal.aborted) return;
+      paperRef.current = assets.paperTextureUrl;
       setPaperTextureUrl(assets.paperTextureUrl);
-
-      // Pausa breve para que los últimos nombres reposen suavemente antes de alzar la cortina.
-      const settleMs = prefersReducedMotion ? 220 : 850;
-      revealTimer = window.setTimeout(() => {
-        if (controller.signal.aborted) return;
-        setIsExiting(true);
-        finishTimer = window.setTimeout(() => {
-          if (!controller.signal.aborted) {
-            onComplete(assets);
-          }
-        }, prefersReducedMotion ? 160 : 720);
-      }, settleMs);
+      assetsReadyRef.current = true;
     });
+
+    const tick = (now: number) => {
+      if (controller.signal.aborted) return;
+      const elapsed = now - startedAt;
+      const height = viewportRef.current.height;
+      const width = viewportRef.current.width;
+
+      if (!prefersReducedMotion) {
+        const nodes = dropRefs.current;
+        for (let i = 0; i < drops.length; i += 1) {
+          const drop = drops[i];
+          const node = nodes[i];
+          if (!node) continue;
+          const local = (elapsed / 1000 - drop.delaySec) / drop.durationSec;
+          if (local <= 0) {
+            node.style.opacity = '0';
+            continue;
+          }
+          const t = Math.min(1, local);
+          const y = -0.14 * height + rainFallEase(t) * (1.22 * height);
+          const x = rainDrift(t, drop.driftPercent) * (width / 100);
+          const rot =
+            drop.initialRotationDeg + (drop.finalRotationDeg - drop.initialRotationDeg) * t;
+          node.style.transform = `translate(-50%, 0) translate3d(${x}px, ${y}px, 0) rotate(${rot}deg)`;
+          node.style.opacity = String(rainOpacity(t) * 0.92);
+        }
+      }
+
+      const visualProgress = Math.min(100, Math.round((elapsed / PRELOADER_MIN_MS) * 100));
+      if (barRef.current) {
+        barRef.current.style.transform = `scaleX(${visualProgress / 100})`;
+      }
+      if (barTrackRef.current) {
+        barTrackRef.current.setAttribute('aria-valuenow', String(visualProgress));
+      }
+      if (labelRef.current) {
+        labelRef.current.textContent = progressLabel(visualProgress);
+      }
+      if (percentRef.current) {
+        percentRef.current.textContent = `${visualProgress}%`;
+      }
+
+      if (
+        elapsed >= PRELOADER_MIN_MS &&
+        (assetsReadyRef.current || elapsed >= PRELOADER_MAX_MS)
+      ) {
+        beginExit();
+      }
+
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    raf = window.requestAnimationFrame(tick);
 
     return () => {
       controller.abort();
-      if (revealTimer !== undefined) window.clearTimeout(revealTimer);
-      if (finishTimer !== undefined) window.clearTimeout(finishTimer);
+      if (fadeTimer !== undefined) window.clearTimeout(fadeTimer);
+      if (raf) window.cancelAnimationFrame(raf);
     };
-  }, [visible, onComplete, prefersReducedMotion]);
+  }, [visible, prefersReducedMotion, drops]);
 
   const handleSkip = () => {
+    if (exitingRef.current) return;
+    exitingRef.current = true;
     setIsExiting(true);
     window.setTimeout(() => {
       onComplete({ paperTextureUrl });
-    }, prefersReducedMotion ? 120 : 420);
+    }, prefersReducedMotion ? 140 : 360);
   };
 
   return (
@@ -100,42 +205,41 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
           role="dialog"
           aria-modal="true"
           aria-label={`Cargando ${BRAND_CONFIG.name}`}
-          initial={{ y: '0%', opacity: 1 }}
-          animate={
-            isExiting
-              ? { y: '-100%', opacity: 0.96 }
-              : { y: '0%', opacity: 1 }
-          }
+          initial={{ opacity: 1 }}
+          animate={{ opacity: isExiting ? 0 : 1 }}
+          exit={{ opacity: 0 }}
           transition={{
-            duration: prefersReducedMotion ? 0.18 : 0.72,
+            duration: prefersReducedMotion ? 0.16 : PRELOADER_FADE_MS / 1000,
             ease: [0.22, 1, 0.36, 1],
           }}
-          style={{
-            backgroundImage: paperTextureUrl ? `url(${paperTextureUrl})` : undefined,
-            backgroundRepeat: 'repeat',
-          }}
-          className="fixed inset-0 z-50 bg-[#FAF8F5] text-[#1A1917] overflow-hidden flex flex-col justify-between select-none"
+          className="preloader-parchment fixed inset-0 z-50 text-[#1A1917] overflow-hidden flex flex-col justify-between select-none"
         >
-          {/* Franja superior discreta */}
+          {grainUrl && (
+            <div
+              aria-hidden="true"
+              className="preloader-grain absolute inset-0 z-[1] pointer-events-none"
+              style={{ backgroundImage: `url(${grainUrl})` }}
+            />
+          )}
+
           <div className="relative z-20 flex items-center justify-between px-6 sm:px-10 py-6">
-            <span className="text-xs font-medium tracking-wide text-[#6B665E]">
-              Edición abierta · Archivo comunitario
+            <span className="text-xs font-medium tracking-wide text-[#5C564E]">
+              Edición abierta · Archivo de lectura
             </span>
             <button
               type="button"
               onClick={handleSkip}
-              className="px-3 py-1.5 text-xs font-medium text-[#6B665E] hover:text-[#1A1917] border border-[#E6DFD3] bg-[#FAF8F5]/90 rounded-lg transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-[#5C564E] hover:text-[#1A1917] border border-[#C4B496]/80 bg-[#E8DCC4]/55 rounded-lg transition-colors"
             >
               Entrar ahora
             </button>
           </div>
 
-          {/* Ancla central despejada (sin colisión con la lluvia inferior) */}
-          <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-6 pb-28 sm:pb-32 text-center">
+          <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-6 pb-10 text-center">
             <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="max-w-lg w-full space-y-5"
             >
               <p className="text-xs font-medium tracking-widest text-[#4A5D4E]">
@@ -146,107 +250,65 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
                 {BRAND_CONFIG.name}
               </h1>
 
-              <p className="text-sm text-[#6B665E]">
+              <p className="text-sm text-[#5C564E]">
                 {BRAND_CONFIG.tagline}
               </p>
 
-              {/* Indicador editorial fino de progreso real */}
               <div className="pt-2 space-y-2 max-w-xs mx-auto">
                 <div
-                  className="h-[2px] w-full bg-[#E6DFD3] rounded-full overflow-hidden"
+                  ref={barTrackRef}
+                  className="h-[2px] w-full bg-[#C4B496] rounded-full overflow-hidden"
                   role="progressbar"
                   aria-label="Progreso de carga del archivo literario"
-                  aria-valuenow={stage.progress}
+                  aria-valuenow={0}
                   aria-valuemin={0}
                   aria-valuemax={100}
                 >
-                  <motion.div
-                    className="h-full bg-[#D97757]"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: stage.progress / 100 }}
-                    transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-                    style={{ transformOrigin: 'left center' }}
+                  <div
+                    ref={barRef}
+                    className="h-full bg-[#B45335] origin-left"
+                    style={{ transform: 'scaleX(0)' }}
                   />
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-[#6B665E] tabular-nums">
-                  <span className="truncate pr-2">{stage.label}</span>
-                  <span className="font-medium text-[#1A1917]">{stage.progress}%</span>
+                <div className="flex items-center justify-between text-xs text-[#5C564E] tabular-nums">
+                  <span ref={labelRef} className="truncate pr-2">
+                    Abriendo el archivo…
+                  </span>
+                  <span ref={percentRef} className="font-medium text-[#1A1917]">
+                    0%
+                  </span>
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Capa cinética: Lluvia de Escritores y apilamiento suave al pie */}
           <div
             aria-hidden="true"
             data-testid="author-rain-layer"
             className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
           >
-            {/* Sutil gradiente de papel en el tercio inferior para sostener visualmente la pila */}
-            <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#F3EFE8]/85 via-[#FAF8F5]/40 to-transparent" />
-
-            {drops.map((drop) => {
-              const startY = -(viewportSize.height - drop.stackBottomPx + 48);
-              const targetY = 0;
-
-              return (
+            {!prefersReducedMotion &&
+              drops.map((drop, index) => (
                 <span
                   key={drop.id}
+                  ref={(node) => {
+                    dropRefs.current[index] = node;
+                  }}
                   style={{
                     left: `${drop.xPercent}%`,
-                    bottom: `${drop.stackBottomPx}px`,
+                    top: 0,
+                    fontSize: `${drop.fontSizeRem}rem`,
+                    opacity: 0,
+                    transform: 'translate(-50%, 0)',
+                    willChange: 'transform, opacity',
                   }}
-                  className="absolute -translate-x-1/2"
+                  className={`absolute font-serif italic whitespace-nowrap tracking-tight ${TONE_COLOR_CLASS[drop.tone]}`}
                 >
-                  <motion.span
-                    initial={
-                      prefersReducedMotion
-                        ? { opacity: 0.9, y: targetY, rotate: drop.finalRotationDeg }
-                        : {
-                            opacity: 0,
-                            y: startY,
-                            rotate: drop.initialRotationDeg,
-                          }
-                    }
-                    animate={{
-                      opacity: [0, 0.92, 0.9],
-                      y: targetY,
-                      rotate: drop.finalRotationDeg,
-                    }}
-                    transition={
-                      prefersReducedMotion
-                        ? { duration: 0.2 }
-                        : {
-                            y: {
-                              duration: drop.durationSec,
-                              delay: drop.delaySec,
-                              ease: [0.22, 1, 0.36, 1],
-                            },
-                            rotate: {
-                              duration: drop.durationSec,
-                              delay: drop.delaySec,
-                              ease: [0.16, 1, 0.3, 1],
-                            },
-                            opacity: {
-                              duration: 0.45,
-                              delay: drop.delaySec,
-                              times: [0, 0.35, 1],
-                            },
-                          }
-                    }
-                    style={{ fontSize: `${drop.fontSizeRem}rem` }}
-                    className={`inline-block font-serif italic whitespace-nowrap tracking-tight ${TONE_COLOR_CLASS[drop.tone]}`}
-                  >
-                    {drop.name}
-                  </motion.span>
+                  {drop.name}
                 </span>
-              );
-            })}
+              ))}
           </div>
-
-          {/* Borde inferior de papel cortado que acompaña la cortina al subir */}
-          <div className="relative z-20 h-1 w-full bg-[#E6DFD3]" />
         </motion.div>
       )}
     </AnimatePresence>

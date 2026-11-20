@@ -56,6 +56,27 @@
   .ivy-front { filter: saturate(0.82) brightness(0.96) drop-shadow(3px 8px 6px rgba(30, 18, 6, 0.38)); }
   /* Las hojas interiores se desvanecen antes de llegar a las flechas */
   .ivy-front-left { -webkit-mask-image: linear-gradient(90deg, #000 62%, transparent 86%); mask-image: linear-gradient(90deg, #000 62%, transparent 86%); }
+
+  .preloader-parchment {
+    background-color: #DCCDB3;
+  }
+  .preloader-parchment::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 38%, rgba(248, 237, 216, 0.42) 0%, transparent 68%),
+      radial-gradient(ellipse 85% 60% at 50% 100%, rgba(86, 56, 28, 0.22) 0%, transparent 70%),
+      radial-gradient(ellipse 100% 80% at 50% -10%, rgba(62, 42, 22, 0.14) 0%, transparent 55%);
+  }
+  .preloader-grain {
+    background-repeat: repeat;
+    background-size: 160px 160px;
+    opacity: 0.45;
+    mix-blend-mode: multiply;
+  }
   .ivy-front-right { -webkit-mask-image: linear-gradient(270deg, #000 62%, transparent 86%); mask-image: linear-gradient(270deg, #000 62%, transparent 86%); }
   @media (max-width: 639px) {
     .ivy-back { display: none; }

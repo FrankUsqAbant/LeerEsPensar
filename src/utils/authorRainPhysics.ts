@@ -3,25 +3,27 @@ import { getAllAuthors } from '../data/catalogEngine';
 export interface RainWriterDrop {
   id: string;
   name: string;
-  /** Porcentaje horizontal [6..94] para evitar cortes en los bordes */
+  /** Porcentaje horizontal inicial [8..92] en escritorio */
   xPercent: number;
-  /** Profundidad desde la parte inferior en px donde reposa apilado */
-  stackBottomPx: number;
-  /** Rotación final suave en grados [-7..7] */
-  finalRotationDeg: number;
-  /** Rotación inicial al entrar desde arriba */
+  /** Deriva horizontal en puntos porcentuales durante la caída */
+  driftPercent: number;
+  /** Rotación inicial al aparecer */
   initialRotationDeg: number;
-  /** Retraso de caída en segundos */
+  /** Rotación al final de la trayectoria */
+  finalRotationDeg: number;
+  /** Retraso de aparición en segundos */
   delaySec: number;
-  /** Duración orgánica de caída en segundos */
+  /** Duración de la caída en segundos */
   durationSec: number;
   /** Tamaño tipográfico relativo en rem */
   fontSizeRem: number;
   /** Tono editorial asignado */
   tone: 'ink' | 'stone' | 'moss' | 'terracotta';
-  /** Estrato vertical de apilamiento (0 = suelo, 1 = medio, 2 = superior) */
-  layer: number;
 }
+
+export const PRELOADER_MIN_MS = 2000;
+export const PRELOADER_MAX_MS = 2500;
+export const PRELOADER_FADE_MS = 560;
 
 const COMPLEMENTARY_LITERARY_VOICES = [
   'Elena Garro',
@@ -70,68 +72,82 @@ export function buildPreloaderWriterList(maxCount = 18): string[] {
   return combined;
 }
 
+/** Gravedad suave: arranca despacio y acelera. t se recorta a [0, 1]. */
+export function rainFallEase(t: number): number {
+  const x = Math.min(1, Math.max(0, t));
+  return x * x;
+}
+
+/** Aparece en el primer tramo, se sostiene y se desvanece al final. */
+export function rainOpacity(t: number): number {
+  const x = Math.min(1, Math.max(0, t));
+  if (x < 0.14) return x / 0.14;
+  if (x > 0.7) return Math.max(0, 1 - (x - 0.7) / 0.3);
+  return 1;
+}
+
+/** Merma lateral en arco, nula al inicio y al final. */
+export function rainDrift(t: number, amplitude: number): number {
+  const x = Math.min(1, Math.max(0, t));
+  return amplitude * Math.sin(x * Math.PI);
+}
+
 /**
- * Calcula trayectorias orgánicas y posiciones de apilamiento limpio en la parte
- * inferior de la pantalla sin superposiciones agresivas ni saturación visual.
+ * Calcula una lluvia ligera y espaciada, con deriva y rotación suaves.
+ * No apila nombres al pie: atraviesan la pantalla y se desvanecen.
  */
 export function generateAuthorRainDrops(
   names: readonly string[],
   viewportWidth = 1440,
 ): RainWriterDrop[] {
   const isCompact = viewportWidth < 640;
-  const visibleCount = isCompact ? Math.min(names.length, 8) : Math.min(names.length, 18);
-  const columns = isCompact ? 2 : 6;
-  const minX = isCompact ? 24 : 9;
-  const maxX = isCompact ? 76 : 91;
+  const visibleCount = isCompact ? Math.min(names.length, 6) : Math.min(names.length, 12);
+  const columns = isCompact ? 3 : 6;
+  const minX = isCompact ? 18 : 10;
+  const maxX = isCompact ? 82 : 90;
   const laneWidth = (maxX - minX) / Math.max(1, columns - 1);
 
   const drops: RainWriterDrop[] = [];
 
   for (let i = 0; i < visibleCount; i += 1) {
     const name = names[i];
-    const layer = Math.floor(i / columns);
+    const wave = Math.floor(i / columns);
     const colIndex = i % columns;
-
-    // Alternar dirección entre filas para que el apilamiento parezca orgánico
-    const staggeredCol = layer % 2 === 1 ? columns - 1 - colIndex : colIndex;
-    const jitterRatio = (deterministicFraction(i + 1) - 0.5) * (isCompact ? 0.22 : 0.42);
+    const staggeredCol = wave % 2 === 1 ? columns - 1 - colIndex : colIndex;
+    const jitterRatio = (deterministicFraction(i + 1) - 0.5) * (isCompact ? 0.18 : 0.36);
     const xCenter = minX + staggeredCol * laneWidth + jitterRatio * laneWidth;
-    const xPercent = Math.max(isCompact ? 20 : 8, Math.min(isCompact ? 80 : 92, Number(xCenter.toFixed(2))));
+    const xPercent = Math.max(minX, Math.min(maxX, Number(xCenter.toFixed(2))));
 
-    // Altura de apilamiento desde abajo sin invadir el centro
-    const baseHeight = isCompact ? 18 : 22;
-    const rowStep = isCompact ? 34 : 42;
-    const verticalJitter = Math.round((deterministicFraction(i + 31) - 0.5) * 6);
-    const stackBottomPx = baseHeight + layer * rowStep + verticalJitter;
-
+    const driftPercent = Number(
+      ((deterministicFraction(i + 23) - 0.5) * (isCompact ? 6 : 9)).toFixed(2),
+    );
     const finalRotationDeg = Number(
-      ((deterministicFraction(i + 17) - 0.5) * (isCompact ? 7 : 11)).toFixed(2),
+      ((deterministicFraction(i + 17) - 0.5) * (isCompact ? 10 : 14)).toFixed(2),
     );
     const initialRotationDeg = Number(
-      (finalRotationDeg + (deterministicFraction(i + 53) > 0.5 ? 10 : -10)).toFixed(2),
+      (finalRotationDeg * 0.35 + (deterministicFraction(i + 53) > 0.5 ? 5 : -5)).toFixed(2),
     );
 
-    const delaySec = Number((i * 0.085 + deterministicFraction(i + 7) * 0.06).toFixed(3));
-    const durationSec = Number(
-      (1.15 + deterministicFraction(i + 19) * 0.45).toFixed(3),
+    const delaySec = Number(
+      ((i / Math.max(1, visibleCount - 1)) * 0.46 + deterministicFraction(i + 7) * 0.05).toFixed(3),
     );
+    const durationSec = Number((1.08 + deterministicFraction(i + 19) * 0.28).toFixed(3));
 
-    const baseSize = isCompact ? 0.86 : 1.06;
-    const sizeVariation = (deterministicFraction(i + 41) - 0.5) * (isCompact ? 0.12 : 0.2);
+    const baseSize = isCompact ? 0.92 : 1.12;
+    const sizeVariation = (deterministicFraction(i + 41) - 0.5) * (isCompact ? 0.14 : 0.22);
     const fontSizeRem = Number((baseSize + sizeVariation).toFixed(3));
 
     drops.push({
       id: `writer-drop-${i}`,
       name,
       xPercent,
-      stackBottomPx,
-      finalRotationDeg,
+      driftPercent,
       initialRotationDeg,
+      finalRotationDeg,
       delaySec,
       durationSec,
       fontSizeRem,
       tone: TONE_PALETTE[i % TONE_PALETTE.length],
-      layer,
     });
   }
 

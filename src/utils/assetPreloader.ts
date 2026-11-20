@@ -32,7 +32,7 @@ function createProceduralPaperDataUrl(): string | null {
   }
 }
 
-async function waitForFontsWithTimeout(timeoutMs = 1400): Promise<void> {
+async function waitForFontsWithTimeout(timeoutMs = 800): Promise<void> {
   if (typeof document === 'undefined' || !('fonts' in document)) return;
   await Promise.race([
     document.fonts.ready.then(() => undefined),
@@ -40,16 +40,6 @@ async function waitForFontsWithTimeout(timeoutMs = 1400): Promise<void> {
       window.setTimeout(resolve, timeoutMs);
     }),
   ]);
-}
-
-function nextAnimationYield(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    if (typeof window === 'undefined') {
-      resolve();
-      return;
-    }
-    window.setTimeout(resolve, ms);
-  });
 }
 
 /**
@@ -67,7 +57,7 @@ export async function preloadEditorialAssets(
   };
 
   report(12, 'Preparando tipografías editoriales...');
-  await waitForFontsWithTimeout(1100);
+  await waitForFontsWithTimeout(700);
   if (signal?.aborted) return { paperTextureUrl: null };
 
   report(44, 'Indexando catálogo y autores...');
@@ -75,12 +65,10 @@ export async function preloadEditorialAssets(
   const authors = getAllAuthors();
   // Precalentar búsqueda inicial sin cargar ningún PDF
   void (books.length + authors.length);
-  await nextAnimationYield(420);
   if (signal?.aborted) return { paperTextureUrl: null };
 
   report(76, 'Tejiendo texturas de papel archivo...');
   const paperTextureUrl = createProceduralPaperDataUrl();
-  await nextAnimationYield(520);
   if (signal?.aborted) return { paperTextureUrl };
 
   report(100, 'Biblioteca lista para leer', true);
