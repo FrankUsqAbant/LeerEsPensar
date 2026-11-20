@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getSupportConfig, normalizePhoneDigits } from '../config/support';
+import { SOCIAL_URL, displayUrl, getPaypalUrl } from '../config/support';
 import { generateQrMatrix } from './supportQrMatrix';
 
 test('generateQrMatrix produces square ISO QR matrix with intact finder patterns', () => {
@@ -30,18 +30,14 @@ test('generateQrMatrix is deterministic for identical payload', () => {
   assert.deepEqual(first, second);
 });
 
-test('getSupportConfig does not invent a phone number or donation URLs', () => {
-  const config = getSupportConfig();
-  assert.equal(config.yapeAvailable, false);
-  assert.equal(config.yapePhoneDigits, '');
-  assert.equal(config.yapePhoneDisplay, '');
-  assert.equal(config.plinAvailable, false);
-  assert.equal(config.plinPhoneDigits, '');
-  assert.equal(config.paypalUrl, '');
-  assert.equal(config.kofiUrl, '');
-  assert.equal(config.bmcUrl, '');
+test('el QR de redes cabe completo en el generador (no se recorta el enlace)', () => {
+  // Capacidad máxima del generador: versión 4 (33 módulos, 78 bytes).
+  assert.ok(new TextEncoder().encode(SOCIAL_URL).length <= 78);
+  const matrix = generateQrMatrix(SOCIAL_URL);
+  assert.ok(matrix.length <= 33);
 });
 
-test('normalizePhoneDigits strips spaces and keeps the country code', () => {
-  assert.equal(normalizePhoneDigits('+51 987 654 321'), '+51987654321');
+test('PayPal usa un enlace https seguro y el texto visible omite el protocolo', () => {
+  assert.match(getPaypalUrl(), /^https:\/\/paypal\.me\//);
+  assert.equal(displayUrl('https://frankusqabant.github.io/'), 'frankusqabant.github.io');
 });

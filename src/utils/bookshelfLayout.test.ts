@@ -49,10 +49,9 @@ test('buildSlidingShelves splits 16 unfiltered books into 3 balanced horizontal 
     authorId: 'Todos',
   });
   assert.equal(fullShelves.hasActiveFilter, false);
-  assert.equal(fullShelves.rows.length, 3);
-  assert.equal(fullShelves.rows[0].slots.length, 6);
-  assert.equal(fullShelves.rows[1].slots.length, 5);
-  assert.equal(fullShelves.rows[2].slots.length, 5);
+  assert.equal(fullShelves.rows.length, 2);
+  assert.equal(fullShelves.rows[0].slots.length, 8);
+  assert.equal(fullShelves.rows[1].slots.length, 8);
 
   const classicShelf = buildSlidingShelves(books, {
     search: '',

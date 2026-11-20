@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import {
-  getAllAuthors,
   getAllGenres,
   getCatalogBooks,
 } from '../data/catalogEngine';
@@ -24,6 +23,7 @@ import {
 } from '../utils/bookshelfLayout';
 import { BookSeductionSheet } from './BookSeductionSheet';
 import { BookVolume3D } from './BookVolume3D';
+import { GenreRibbon } from './GenreRibbon';
 
 export interface BotanicalBookshelfHeroProps {
   getBookProgress: (bookId: string) => ReadingProgress | undefined;
@@ -122,7 +122,7 @@ function SlidingShelfRow({
           className="pointer-events-none absolute inset-x-4 top-0 bottom-0"
           style={{
             background:
-              'radial-gradient(ellipse 75% 70% at 50% 10%, rgba(255,248,232,0.58) 0%, rgba(226,214,194,0.22) 60%, rgba(164,142,114,0.26) 100%)',
+              'var(--room-shelf-light)',
           }}
         />
 
@@ -134,7 +134,7 @@ function SlidingShelfRow({
             aria-label="Desplazar libros hacia la izquierda"
             disabled={!canScrollLeft}
             onClick={() => handleSlide(-1)}
-            className="absolute left-2 sm:left-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full max-sm:!hidden bg-[#FAF7F2]/95 border border-[#C7B69B] text-[#1A1917] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[#1A1917] hover:text-[#FAF7F2] hover:border-[#1A1917] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
+            className="absolute left-2 sm:left-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full max-sm:!hidden bg-[var(--room-field)]/95 border border-[#C7B69B] text-[var(--room-ink)] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[var(--room-ink)] hover:text-[var(--room-field)] hover:border-[var(--room-ink)] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
           </button>
@@ -148,7 +148,7 @@ function SlidingShelfRow({
             aria-label="Desplazar libros hacia la derecha"
             disabled={!canScrollRight}
             onClick={() => handleSlide(1)}
-            className="absolute right-2 sm:right-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full max-sm:!hidden bg-[#FAF7F2]/95 border border-[#C7B69B] text-[#1A1917] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[#1A1917] hover:text-[#FAF7F2] hover:border-[#1A1917] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
+            className="absolute right-2 sm:right-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full max-sm:!hidden bg-[var(--room-field)]/95 border border-[#C7B69B] text-[var(--room-ink)] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[var(--room-ink)] hover:text-[var(--room-field)] hover:border-[var(--room-ink)] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
           </button>
@@ -240,12 +240,11 @@ export function BotanicalBookshelfHero({
   const woodGrainFilterId = useId();
 
   const books = useMemo(() => getCatalogBooks(), []);
-  const authors = useMemo(() => getAllAuthors(), []);
   const genres = useMemo(() => getAllGenres(books), [books]);
 
   const [search, setSearch] = useState('');
   const [genre, setGenre] = useState<BookGenre | 'Todos'>('Todos');
-  const [authorId, setAuthorId] = useState<string | 'Todos'>('Todos');
+  const authorId = 'Todos' as const;
   const [selectedBook, setSelectedBook] = useState<BookIndexEntry | null>(null);
   const [readerNotice, setReaderNotice] = useState<string | null>(null);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
@@ -260,7 +259,6 @@ export function BotanicalBookshelfHero({
   const resetFilters = () => {
     setSearch('');
     setGenre('Todos');
-    setAuthorId('Todos');
   };
 
   const handleOpenBook = (book: BookIndexEntry) => {
@@ -290,10 +288,8 @@ export function BotanicalBookshelfHero({
     <section
       id="biblioteca"
       aria-label="Estantería editorial LeerEsPensar"
-      className="relative overflow-hidden bg-[#DCCDB3] pt-4 sm:pt-5 pb-6 sm:pb-8"
+      className="relative overflow-hidden bg-[var(--room-wall)] transition-colors duration-700 pt-4 sm:pt-5 pb-10 sm:pb-14"
     >
-      {/* Título accesible oculto visualmente para jerarquía semántica */}
-      <h1 className="sr-only">LeerEsPensar — Biblioteca Editorial Libre</h1>
 
       {/* Filtros SVG ocultos para estuco fino y veta orgánica de roble */}
       <svg aria-hidden="true" className="sr-only">
@@ -322,109 +318,76 @@ export function BotanicalBookshelfHero({
         </defs>
       </svg>
 
-      {/* Textura mineral de pared arena */}
+      {/* Textura mineral de la pared verde biblioteca */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.04]"
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
         style={{ filter: `url(#${stuccoFilterId})` }}
       />
 
-      {/* Haz de luz solar cálida */}
+      {/* Luz cálida de lámpara sobre la pared verde, que se apaga hacia abajo */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'linear-gradient(125deg, rgba(246,236,216,0.55) 0%, rgba(240,228,206,0.22) 34%, rgba(220,205,179,0) 62%, rgba(120,100,70,0.14) 100%)',
+            'radial-gradient(ellipse 70% 60% at 50% 0%, var(--room-glow) 0%, rgba(0,0,0,0) 72%), linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(20,18,14,0.08) 100%)',
         }}
       />
 
       <div className="relative z-10 max-w-[84rem] mx-auto px-3 sm:px-5 lg:px-6 space-y-3 sm:space-y-4">
-        {/* Una sola línea de contexto: qué es y que es gratis */}
-        <p className="text-center text-[13px] sm:text-sm text-[#5C564E] px-4 pt-1">
-          Clásicos de la literatura para leer aquí o descargar en PDF, gratis.
-        </p>
+        {/* Título editorial: la frase del nombre, con "pensar" en cursiva. El estante es la imagen. */}
+        <div className="text-center px-4 pt-4 sm:pt-8 pb-1 sm:pb-2">
+          <h1 className="font-serif font-medium tracking-tight text-[var(--room-ink)] text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl">
+            Leer es <em className="italic font-normal text-[var(--room-accent)]">pensar.</em>
+          </h1>
+          <p className="mt-3 sm:mt-4 text-[13px] sm:text-[15px] text-[var(--room-ink-soft)]">
+            Clásicos literarios para descargar en PDF, gratis.
+          </p>
+        </div>
 
-        {/* Únicamente Buscador, Géneros y Escritores */}
-        <div
-          data-testid="bookshelf-filter-bar"
-          className="max-w-4xl mx-auto bg-[#FAF7F2]/92 backdrop-blur-md border border-[#1A1917]/14 rounded-xl shadow-[0_12px_30px_-14px_rgba(40,28,16,0.18)]"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-12 items-center divide-y md:divide-y-0 md:divide-x divide-[#1A1917]/10">
-            <div className="col-span-2 md:col-span-5 relative">
-              <label htmlFor="hero-search" className="sr-only">
-                Buscar libro o escritor
-              </label>
-              <Search
-                className="w-4 h-4 text-[#6B665E] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
-                aria-hidden="true"
-              />
-              <input
-                id="hero-search"
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar libro o escritor..."
-                className="w-full pl-10 pr-3 py-3 text-sm bg-transparent text-[#1A1917] placeholder:text-[#6B665E] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#D97757]/40 rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
-              />
-            </div>
-
-            <div className="col-span-1 md:col-span-3">
-              <label htmlFor="hero-genre" className="sr-only">
-                Géneros
-              </label>
-              <select
-                id="hero-genre"
-                value={genre}
-                onChange={(e) => setGenre(e.target.value as BookGenre | 'Todos')}
-                className="w-full px-3 py-3 text-xs sm:text-sm bg-transparent text-[#1A1917] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#D97757]/40 cursor-pointer"
+        {/* Un solo buscador (título, autor o tema) y los géneros como etiquetas suaves */}
+        <div data-testid="bookshelf-filter-bar" className="max-w-2xl mx-auto space-y-3">
+          <div className="relative">
+            <label htmlFor="hero-search" className="sr-only">
+              Buscar por título, autor o tema
+            </label>
+            <Search
+              className="w-4 h-4 text-[var(--room-ink-soft)] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+              aria-hidden="true"
+            />
+            <input
+              id="hero-search"
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Busca por título, autor o tema…"
+              className="w-full pl-11 pr-11 py-3 text-sm rounded-full bg-[var(--room-field)] text-[var(--room-ink)] placeholder:text-[var(--room-ink-soft)] border border-[var(--room-line)] shadow-[0_10px_26px_-18px_rgba(0,0,0,0.45)] focus:outline-none focus:ring-2 focus:ring-[var(--room-accent)]/40 transition-colors"
+            />
+            {shelfData.hasActiveFilter && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                aria-label="Limpiar búsqueda y género"
+                title="Limpiar"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[var(--room-accent)] hover:bg-[var(--room-page)] rounded-full transition-colors"
               >
-                <option value="Todos">Géneros</option>
-                {genres.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-span-1 md:col-span-4 flex items-center">
-              <label htmlFor="hero-author" className="sr-only">
-                Escritores
-              </label>
-              <select
-                id="hero-author"
-                value={authorId}
-                onChange={(e) => setAuthorId(e.target.value)}
-                className="w-full px-3 py-3 text-xs sm:text-sm bg-transparent text-[#1A1917] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#D97757]/40 cursor-pointer rounded-br-xl md:rounded-r-xl"
-              >
-                <option value="Todos">Escritores</option>
-                {authors.map((author) => (
-                  <option key={author.id} value={author.id}>
-                    {author.name}
-                  </option>
-                ))}
-              </select>
-
-              {shelfData.hasActiveFilter && (
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  aria-label="Limpiar filtros"
-                  title="Limpiar filtros"
-                  className="mr-2 p-2 text-[#B45335] hover:text-[#8E3C22] hover:bg-[#EFE8DC] rounded-lg transition-colors shrink-0"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
-              )}
-            </div>
+                <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+              </button>
+            )}
           </div>
+
+          <GenreRibbon
+            items={['Todos', ...genres] as Array<BookGenre | 'Todos'>}
+            active={genre}
+            onSelect={(item) => setGenre(genre === item && item !== 'Todos' ? 'Todos' : item)}
+          />
         </div>
 
         {readerNotice && (
           <div
             role="status"
-            className="max-w-4xl mx-auto flex items-center justify-between gap-4 px-4 py-2.5 rounded-xl border border-[#4A5D4E]/35 bg-[#4A5D4E]/10 text-xs sm:text-sm text-[#1A1917]"
+            className="max-w-4xl mx-auto flex items-center justify-between gap-4 px-4 py-2.5 rounded-xl border border-[#4A5D4E]/35 bg-[var(--room-field)] text-xs sm:text-sm text-[var(--room-ink)]"
           >
             <span className="inline-flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-[#4A5D4E] shrink-0" aria-hidden="true" />
@@ -441,13 +404,10 @@ export function BotanicalBookshelfHero({
         )}
 
         <div className="relative">
-          {/* Hiedra trasera (detrás del mueble, más oscura) */}
-          <img src="/assets/ivy-right.webp" alt="" aria-hidden="true" className="ivy ivy-back pointer-events-none select-none absolute z-0 -left-10 sm:-left-12 -top-4 h-[calc(100%+16px)] w-auto" />
-          <img src="/assets/ivy-left.webp" alt="" aria-hidden="true" className="ivy ivy-back pointer-events-none select-none absolute z-0 -right-10 sm:-right-12 -top-4 h-[calc(100%+16px)] w-auto" />
         {/* Mueble-estantería arquitectónico en nicho cálido con pilares laterales de roble */}
         <div
           data-testid="botanical-bookshelf"
-          className="relative rounded-2xl border border-[#8F6438]/50 bg-[#E9DDC7] shadow-[inset_0_16px_40px_-20px_rgba(42,26,12,0.3),0_30px_60px_-28px_rgba(42,26,12,0.5)] overflow-hidden"
+          className="relative rounded-2xl border border-[#8F6438]/50 bg-[var(--room-shelf)] shadow-[inset_0_16px_40px_-20px_rgba(42,26,12,0.3),0_30px_60px_-28px_rgba(42,26,12,0.5)] overflow-hidden"
         >
           {/* Moldura superior arquitectónica en roble */}
           <div
@@ -472,13 +432,13 @@ export function BotanicalBookshelfHero({
           <div className="relative px-2 sm:px-3 pt-2.5 sm:pt-3 pb-2 space-y-2 sm:space-y-3">
             {shelfData.rows.length === 0 ? (
               <div className="py-14 px-6 text-center space-y-3">
-                <p className="font-serif text-xl text-[#1A1917]">
+                <p className="font-serif text-xl text-[var(--room-ink)]">
                   No encontramos ejemplares con ese filtro
                 </p>
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-[#1A1917] text-[#FAF7F2] rounded-lg hover:bg-[#32302C] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-[var(--room-ink)] text-[var(--room-field)] rounded-lg hover:bg-[var(--room-ink-soft)] transition-colors"
                 >
                   <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                   Mostrar toda la estantería
@@ -506,9 +466,6 @@ export function BotanicalBookshelfHero({
             style={{ background: OAK_LIP_GRADIENT }}
           />
         </div>
-          {/* Hiedra delantera (sobre los pilares, bajo las flechas) */}
-          <img src="/assets/ivy-left.webp" alt="" aria-hidden="true" className="ivy ivy-front ivy-front-left pointer-events-none select-none absolute z-[35] -left-[44px] sm:-left-[52px] top-5 h-[calc(100%-16px)] w-auto" />
-          <img src="/assets/ivy-right.webp" alt="" aria-hidden="true" className="ivy ivy-front ivy-front-right pointer-events-none select-none absolute z-[35] -right-[44px] sm:-right-[52px] top-1 h-[calc(100%-6px)] w-auto" />
         </div>
       </div>
 

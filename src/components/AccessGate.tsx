@@ -66,10 +66,14 @@ export function AccessGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#1A1917] flex items-center justify-center px-6">
+    <div
+      className={`min-h-screen flex items-center justify-center px-6 ${
+        status === "checking" ? "bg-[#1C1A17]" : "bg-[#FAF7F2] text-[#1A1917]"
+      }`}
+    >
       <div className="w-full max-w-md">
         {status === "checking" ? (
-          <p className="text-sm text-[#6B665E] text-center" aria-live="polite">
+          <p className="sr-only" aria-live="polite">
             Abriendo la biblioteca…
           </p>
         ) : (

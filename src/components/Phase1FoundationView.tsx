@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Heart, Mail } from "lucide-react";
+import { Heart } from "lucide-react";
 import { BRAND_CONFIG } from "../config/brand";
+import { SOCIAL_URL, displayUrl } from "../config/support";
 import { useReadingProgress } from "../hooks/useReadingProgress";
 import type { BookIndexEntry } from "../types/folio";
 import {
@@ -8,6 +9,8 @@ import {
   triggerPdfBytesDownload,
 } from "../utils/bookPdfBuilder";
 import { BotanicalBookshelfHero } from "./BotanicalBookshelfHero";
+import { LampSwitch } from "./LampSwitch";
+import { QrCode } from "./QrCode";
 import { ImmersiveReader } from "./ImmersiveReader";
 import { SupportModal } from "./SupportModal";
 
@@ -15,7 +18,7 @@ export interface Phase1FoundationViewProps {
   onReplayPreloader?: () => void;
 }
 
-export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationViewProps) {
+export function Phase1FoundationView(_props: Phase1FoundationViewProps) {
   const { getBookProgress, updatePage, markBookCompleted } = useReadingProgress();
 
   const [activeReaderBook, setActiveReaderBook] = useState<BookIndexEntry | null>(null);
@@ -42,36 +45,31 @@ export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationView
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#1A1917] flex flex-col overflow-x-clip">
-      <header className="sticky top-0 z-30 bg-[#FAF7F2]/95 backdrop-blur-sm border-b border-[#E6DFD3]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3 sm:gap-8">
+    <div className="min-h-screen bg-[var(--room-page)] text-[var(--room-ink)] flex flex-col overflow-x-clip">
+      {/* Cabecera en el mismo pergamino que la estantería: logo con la palabra "Es" en cursiva
+          y un único botón de apoyo discreto. */}
+      <header className="sticky top-0 z-30 bg-[var(--room-header)]/92 backdrop-blur-md border-b border-[var(--room-line)]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
           <a
             href="#top"
-            className="font-serif text-xl sm:text-2xl font-semibold tracking-tight text-[#1A1917] whitespace-nowrap shrink-0"
+            aria-label={`${BRAND_CONFIG.name}, ir al inicio`}
+            className="font-serif text-[1.35rem] sm:text-[1.6rem] font-medium tracking-tight text-[var(--room-ink)] whitespace-nowrap shrink-0 leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--room-accent)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--room-header)] rounded-sm"
           >
-            {BRAND_CONFIG.name}
+            Leer<em className="italic font-normal text-[var(--room-accent)] px-[1px]">Es</em>Pensar
           </a>
 
-          <nav
-            aria-label="Navegación principal"
-            className="flex items-center gap-3 sm:gap-6 text-sm font-medium text-[#6B665E]"
-          >
-            <a
-              href="#biblioteca"
-              className="hidden md:inline hover:text-[#1A1917] underline-offset-4 hover:underline transition-colors whitespace-nowrap shrink-0"
-            >
-              Biblioteca
-            </a>
+          <nav aria-label="Navegación principal" className="flex items-center gap-3 sm:gap-6 text-sm">
             <button
               type="button"
               data-testid="nav-support-btn"
               onClick={() => setSupportModalOpen(true)}
-              className="inline-flex items-center gap-1.5 text-[#4A5D4E] hover:text-[#B45335] underline-offset-4 hover:underline transition-colors whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--room-accent)]/40 px-3.5 py-1.5 text-[13px] font-medium text-[var(--room-accent)] hover:bg-[var(--room-accent)] hover:text-[var(--room-page)] transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--room-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--room-header)]"
             >
               <Heart className="w-3.5 h-3.5" aria-hidden="true" />
-              <span className="hidden sm:inline">Apoya este proyecto libre</span>
+              <span className="hidden sm:inline">Apoya este proyecto</span>
               <span className="sm:hidden">Apoyar</span>
             </button>
+            <LampSwitch />
           </nav>
         </div>
       </header>
@@ -84,61 +82,65 @@ export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationView
         />
       </main>
 
-      <footer className="border-t border-[#E6DFD3] py-6 px-4 sm:px-6 text-xs text-[#6B665E]">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex flex-col gap-1.5">
-            <span>
-              {BRAND_CONFIG.name} · {BRAND_CONFIG.location}
-            </span>
-            <p>
-              Hecho por{' '}
-              <a
-                href={BRAND_CONFIG.authorSiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#1A1917] hover:text-[#B45335] underline underline-offset-4 transition-colors"
-              >
-                {BRAND_CONFIG.creator}
-              </a>
-              <span aria-hidden="true"> · </span>
-              <a
-                href={BRAND_CONFIG.githubProfileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#1A1917] underline underline-offset-4 transition-colors"
-              >
-                GitHub
-              </a>
+      {/* Pie como colofón: la nota final de los libros impresos. */}
+      <footer className="bg-[var(--room-footer)] border-t border-[var(--room-ink-soft)]/25 text-[var(--room-ink-soft)]">
+        <div className="max-w-5xl mx-auto px-6 py-10 sm:py-12 grid gap-8 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="text-center md:text-left">
+            <p aria-hidden="true" className="font-serif text-2xl text-[var(--room-ink-soft)]/70 leading-none">
+              ❦
             </p>
-            <a
-              href={`mailto:${BRAND_CONFIG.contactEmail}`}
-              className="inline-flex items-center gap-1 hover:text-[#1A1917] underline underline-offset-4 transition-colors"
+            <p className="mt-5 font-serif italic text-lg sm:text-xl text-[var(--room-ink)] leading-snug">
+              Hecha en {BRAND_CONFIG.location}, para que leer siga siendo gratis.
+            </p>
+            <nav
+              aria-label="Enlaces del pie"
+              className="mt-5 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-2 text-[13px]"
             >
-              <Mail className="w-3 h-3" aria-hidden="true" />
-              {BRAND_CONFIG.contactEmail}
-            </a>
+              <span>
+                Una biblioteca de{' '}
+                <a
+                  href={BRAND_CONFIG.authorSiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--room-ink)] underline decoration-[var(--room-accent)]/40 underline-offset-4 hover:decoration-[var(--room-accent)] transition-colors"
+                >
+                  {BRAND_CONFIG.creator}
+                </a>
+              </span>
+              <span aria-hidden="true" className="text-[var(--room-ink-soft)]/50">·</span>
+              <a
+                href={`mailto:${BRAND_CONFIG.contactEmail}`}
+                title={BRAND_CONFIG.contactEmail}
+                className="hover:text-[var(--room-ink)] transition-colors"
+              >
+                Escríbenos
+              </a>
+            </nav>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              data-testid="footer-support-btn"
-              onClick={() => setSupportModalOpen(true)}
-              className="inline-flex items-center gap-1.5 text-[#4A5D4E] hover:text-[#B45335] underline underline-offset-4 transition-colors"
-            >
-              <Heart className="w-3.5 h-3.5" aria-hidden="true" />
-              Apoya este proyecto libre
-            </button>
-            {onReplayPreloader && (
-              <button
-                type="button"
-                onClick={onReplayPreloader}
-                className="text-[#1A1917] hover:text-[#B45335] underline underline-offset-4 transition-colors"
-              >
-                Repetir lluvia de escritores
-              </button>
-            )}
-          </div>
+          {/* QR de redes: a un lado en escritorio, debajo en móvil */}
+          <a
+            href={SOCIAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="footer-social-qr"
+            className="group mx-auto md:mx-0 flex items-center gap-4 rounded-2xl border border-[var(--room-line)] bg-[var(--room-field)]/60 p-3 pr-5 hover:bg-[var(--room-field)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--room-accent)]"
+          >
+            <QrCode
+              value={SOCIAL_URL}
+              label="Código QR de mis redes sociales"
+              className="w-24 h-24 rounded-lg"
+            />
+            <span className="text-left">
+              <span className="block text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--room-ink-soft)]">
+                Mis redes
+              </span>
+              <span className="block mt-1 font-serif text-lg text-[var(--room-ink)]">Sígueme</span>
+              <span className="block mt-0.5 text-xs text-[var(--room-ink-soft)] group-hover:text-[var(--room-accent)] transition-colors">
+                {displayUrl(SOCIAL_URL)} →
+              </span>
+            </span>
+          </a>
         </div>
       </footer>
 

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AccessGate } from "./components/AccessGate";
-import { AuthorRainPreloader } from "./components/AuthorRainPreloader";
+import { LampPreloader } from "./components/LampPreloader";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Phase1FoundationView } from "./components/Phase1FoundationView";
 
@@ -37,6 +37,9 @@ function shouldSkipPreloaderInitially(): boolean {
 export default function App() {
   const [showPreloader, setShowPreloader] = useState<boolean>(() => !shouldSkipPreloaderInitially());
   const [paperTextureUrl, setPaperTextureUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!showPreloader) document.documentElement.style.backgroundColor = "";
+  }, [showPreloader]);
   const [fullIntro, setFullIntro] = useState<boolean>(() => typeof window === "undefined" || !hasSeenIntro());
 
   const handlePreloaderComplete = useCallback((assets: { paperTextureUrl: string | null }) => {
@@ -44,6 +47,8 @@ export default function App() {
       setPaperTextureUrl(assets.paperTextureUrl);
     }
     markIntroSeen();
+    // La penumbra inicial del <html> (evita el fogonazo blanco) ya no hace falta.
+    document.documentElement.style.backgroundColor = "";
     setShowPreloader(false);
   }, []);
 
@@ -67,7 +72,7 @@ export default function App() {
               : undefined
           }
         >
-          <AuthorRainPreloader
+          <LampPreloader
             visible={showPreloader}
             fullIntro={fullIntro}
             onComplete={handlePreloaderComplete}

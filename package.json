@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
-    "test": "tsx --test src/data/catalogEngine.test.ts src/utils/authorRainPhysics.test.ts src/utils/bookPdfBuilder.test.ts src/utils/bookshelfLayout.test.ts src/utils/pdfSecurityValidator.test.ts src/utils/readingProgressStorage.test.ts src/utils/sanitization.test.ts src/utils/supportQrMatrix.test.ts"
+    "test": "tsx --test src/data/catalogEngine.test.ts src/utils/bookPdfBuilder.test.ts src/utils/bookShareCard.test.ts src/utils/bookshelfLayout.test.ts src/utils/pdfSecurityValidator.test.ts src/utils/readingProgressStorage.test.ts src/utils/sanitization.test.ts src/utils/supportQrMatrix.test.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

@@ -17,12 +17,84 @@
   --color-oak: #C7A67B;
 }
 
+/* ── Sala de lectura: colores suaves que cambian con la lámpara y la hora ──
+   data-theme: light (lámpara encendida) | dark (lectura de noche)
+   data-ambient: day | dusk | night (solo matiza el modo claro) */
+:root {
+  --room-page: #F3EDE2;
+  --room-header: #F7F2E9;
+  --room-wall: #D7DBD0;
+  --room-glow: rgba(255, 244, 222, 0.55);
+  --room-ink: #2B2A26;
+  --room-ink-soft: #66625A;
+  --room-accent: #B06A4C;
+  --room-field: #FBF8F2;
+  --room-line: rgba(43, 42, 38, 0.12);
+  --room-shelf: #EFE7D8;
+  --room-shelf-light: radial-gradient(ellipse 75% 70% at 50% 10%, rgba(255,248,232,0.58) 0%, rgba(226,214,194,0.22) 60%, rgba(164,142,114,0.22) 100%);
+  --room-footer: #E9E1D2;
+  --room-shelf-filter: none;
+}
+:root[data-ambient="dusk"] {
+  --room-wall: #DCD4C3;
+  --room-glow: rgba(255, 214, 160, 0.5);
+  --room-shelf: #EDE2CE;
+}
+:root[data-ambient="night"] {
+  --room-wall: #D0CCC0;
+  --room-glow: rgba(255, 205, 150, 0.45);
+  --room-shelf: #EAE0CC;
+}
+:root[data-theme="dark"] {
+  --room-page: #1F1E1B;
+  --room-header: #24231F;
+  --room-wall: #2A2E29;
+  --room-glow: rgba(255, 196, 128, 0.17);
+  --room-ink: #E9E1D2;
+  --room-ink-soft: #A39C8E;
+  --room-accent: #D9A273;
+  --room-field: #2C2A26;
+  --room-line: rgba(233, 225, 210, 0.12);
+  --room-shelf: #3A342C;
+  --room-shelf-light: radial-gradient(ellipse 70% 80% at 50% 0%, rgba(255,210,150,0.16) 0%, rgba(255,210,150,0.04) 55%, rgba(0,0,0,0.2) 100%);
+  --room-footer: #191816;
+  --room-shelf-filter: brightness(0.86) saturate(0.9);
+  color-scheme: dark;
+}
+
+/* Transición de la lámpara: la luz se expande desde la bombilla al encender
+   y se recoge hacia ella al apagar. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.lamp-turning-on::view-transition-new(root) {
+  animation: lamp-light-spread 950ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html.lamp-turning-off::view-transition-old(root) {
+  z-index: 2;
+  animation: lamp-light-gather 950ms cubic-bezier(0.55, 0, 0.3, 1) both;
+}
+@keyframes lamp-light-spread {
+  from { clip-path: circle(0px at var(--lamp-x, 90%) var(--lamp-y, 2rem)); }
+  to { clip-path: circle(150vmax at var(--lamp-x, 90%) var(--lamp-y, 2rem)); }
+}
+@keyframes lamp-light-gather {
+  from { clip-path: circle(150vmax at var(--lamp-x, 90%) var(--lamp-y, 2rem)); }
+  to { clip-path: circle(0px at var(--lamp-x, 90%) var(--lamp-y, 2rem)); }
+}
+
 @layer base {
   html {
     font-family: var(--font-sans);
-    background-color: var(--color-paper);
-    color: var(--color-ink);
+    background-color: var(--room-page);
+    color: var(--room-ink);
     scroll-behavior: smooth;
+  }
+
+  [data-testid="botanical-bookshelf"] {
+    filter: var(--room-shelf-filter);
   }
 
   h1, h2, h3, .font-editorial {
@@ -70,14 +142,6 @@
       radial-gradient(ellipse 70% 50% at 50% 38%, rgba(248, 237, 216, 0.42) 0%, transparent 68%),
       radial-gradient(ellipse 85% 60% at 50% 100%, rgba(86, 56, 28, 0.22) 0%, transparent 70%),
       radial-gradient(ellipse 100% 80% at 50% -10%, rgba(62, 42, 22, 0.14) 0%, transparent 55%);
-  }
-  /* Salida en dos tiempos: primero se va el texto, luego el pergamino.
-     Así el logo nunca queda encima de la estantería. */
-  .preloader-parchment > :not(.preloader-grain) {
-    transition: opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .preloader-parchment[data-exiting="true"] > :not(.preloader-grain) {
-    opacity: 0;
   }
   .preloader-grain {
     background-repeat: repeat;

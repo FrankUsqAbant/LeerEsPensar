@@ -121,12 +121,12 @@ export function buildSlidingShelves(
     filteredBooks.length <= 6
       ? [filteredBooks]
       : (() => {
-          // 3 repisas equilibradas (16 → 6 / 5 / 5)
+          // 2 repisas equilibradas (16 → 8 / 8): el estante se lee entero en la portada
           const n = filteredBooks.length;
-          const base = Math.floor(n / 3);
-          const extra = n % 3;
+          const base = Math.floor(n / 2);
+          const extra = n % 2;
           let start = 0;
-          return [0, 1, 2].map((i) => {
+          return [0, 1].map((i) => {
             const size = base + (i < extra ? 1 : 0);
             const chunk = filteredBooks.slice(start, start + size);
             start += size;
