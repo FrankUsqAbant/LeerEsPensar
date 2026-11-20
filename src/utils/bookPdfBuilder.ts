@@ -418,7 +418,7 @@ export async function prepareVerifiedBookPdf(
 
   if (typeof fetch === 'function' && book.pdfUrl.startsWith('/')) {
     try {
-      const response = await fetch(book.pdfUrl, { method: 'GET' });
+      const response = await fetch(book.pdfUrl, { method: 'GET', credentials: 'same-origin' });
       const contentType = response.headers.get('content-type') ?? '';
       if (response.ok && contentType.toLowerCase().includes('pdf')) {
         const buffer = new Uint8Array(await response.arrayBuffer());

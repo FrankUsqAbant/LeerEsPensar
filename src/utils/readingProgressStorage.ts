@@ -1,6 +1,6 @@
 import type { ReadingProgress, ReadingProgressMap } from '../types/folio';
 
-export const READING_PROGRESS_STORAGE_KEY = 'folio.reading-progress.v1';
+export const READING_PROGRESS_STORAGE_KEY = 'leerespensar.reading-progress.v1';
 
 export function computeProgressPercentage(currentPage: number, totalPages: number): number {
   if (!Number.isFinite(totalPages) || totalPages <= 0) return 0;

@@ -33,7 +33,7 @@ test('validateAndSanitizeReview rejects empty names, short text, and spam repeti
 });
 
 test('isSafeHttpUrl allows http/https and rejects javascript/data URLs', () => {
-  assert.equal(isSafeHttpUrl('https://folio.lectura.org/libro'), true);
+  assert.equal(isSafeHttpUrl('https://abanto.pages.dev/libro'), true);
   assert.equal(isSafeHttpUrl('javascript:alert(1)'), false);
   assert.equal(isSafeHttpUrl('data:text/html,<h1>x</h1>'), false);
 });

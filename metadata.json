@@ -1,6 +1,0 @@
-{
-  "name": "Folio.",
-  "description": "Plataforma editorial gratuita de lectura comunitaria con biblioteca orgánica, lector inmersivo, comunidad de lectores y validación segura de PDFs.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

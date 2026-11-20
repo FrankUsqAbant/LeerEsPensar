@@ -5,7 +5,7 @@ export const BRAND_CONFIG = {
   creator: 'Frank Abanto',
   location: 'Cajamarca, Perú',
   contactEmail: 'leyendoparapensar@gmail.com',
-  githubUrl: 'https://github.com/FrankUsqAbant/Proyecto-Library',
+  githubUrl: 'https://github.com/FrankUsqAbant/LeerEsPensar',
   authorSiteUrl: 'https://abanto.pages.dev',
 } as const;
 

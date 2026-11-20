@@ -49,7 +49,7 @@ export function drawAchievementCardToCanvas(
   if (!ctx) return;
 
   const { book } = options;
-  const safeReader = sanitizePlainText(options.readerName || 'Lector de la comunidad', 60);
+  const safeReader = sanitizePlainText(options.readerName || 'Lector', 60);
   const safeQuote = sanitizePlainText(
     options.quote || book.hookSummary,
     240,

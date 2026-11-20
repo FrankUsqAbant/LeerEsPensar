@@ -1,0 +1,5 @@
+# Copia este archivo a .dev.vars para el entorno local de Wrangler.
+# No uses estos valores en producción.
+
+ACCESS_CODE=cambia-este-codigo
+SESSION_SECRET=cambia-esta-clave-larga-y-aleatoria

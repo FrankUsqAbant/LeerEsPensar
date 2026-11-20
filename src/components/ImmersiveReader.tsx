@@ -24,7 +24,6 @@ import {
   prepareVerifiedBookPdf,
   triggerPdfBytesDownload,
 } from '../utils/bookPdfBuilder';
-import { BookCommunity } from './BookCommunity';
 import { ShareAchievementModal } from './ShareAchievementModal';
 
 type ReaderTheme = 'light' | 'sepia' | 'night';
@@ -371,7 +370,7 @@ export function ImmersiveReader({
         </div>
       </header>
 
-      {/* Área principal de descarga verificada, lectura y comunidad */}
+      {/* Área principal de descarga verificada y lectura */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-8">
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Módulo destacado de Descarga PDF Segura */}
@@ -612,8 +611,6 @@ export function ImmersiveReader({
             </article>
           )}
 
-          {/* Comunidad de Lectura */}
-          <BookCommunity book={book} surfaceMode={theme} />
         </div>
       </div>
 

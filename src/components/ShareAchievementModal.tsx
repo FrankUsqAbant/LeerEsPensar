@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Award, Check, Copy, Download, Share2, X } from 'lucide-react';
 import { BRAND_CONFIG } from '../config/brand';
-import { useAuth } from '../contexts/AuthContext';
 import { getBookEditionContent } from '../data/bookEditions';
 import type { BookIndexEntry } from '../types/folio';
 import { isSafeHttpUrl, sanitizePlainText } from '../utils/sanitization';
@@ -21,7 +20,6 @@ export function ShareAchievementModal({
   open,
   onClose,
 }: ShareAchievementModalProps) {
-  const { user } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [quote, setQuote] = useState('');
   const [copied, setCopied] = useState(false);
@@ -38,10 +36,10 @@ export function ShareAchievementModal({
     if (!open || !book || !canvasRef.current) return;
     drawAchievementCardToCanvas(canvasRef.current, {
       book,
-      readerName: user?.displayName ?? 'Lector de la comunidad',
+      readerName: 'Lector',
       quote: quote || book.hookSummary,
     });
-  }, [open, book, user?.displayName, quote]);
+  }, [open, book, quote]);
 
   useEffect(() => {
     if (!open) return;

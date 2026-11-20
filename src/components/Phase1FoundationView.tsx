@@ -1,33 +1,22 @@
-import { useState } from 'react';
-import { Heart, LogOut, Mail } from 'lucide-react';
-import { BRAND_CONFIG } from '../config/brand';
-import { useAuth } from '../contexts/AuthContext';
-import { useReadingProgress } from '../hooks/useReadingProgress';
-import type { BookIndexEntry } from '../types/folio';
+import { useState } from "react";
+import { Heart, Mail } from "lucide-react";
+import { BRAND_CONFIG } from "../config/brand";
+import { useReadingProgress } from "../hooks/useReadingProgress";
+import type { BookIndexEntry } from "../types/folio";
 import {
   prepareVerifiedBookPdf,
   triggerPdfBytesDownload,
-} from '../utils/bookPdfBuilder';
-import { BotanicalBookshelfHero } from './BotanicalBookshelfHero';
-import { ImmersiveReader } from './ImmersiveReader';
-import { SupportModal } from './SupportModal';
+} from "../utils/bookPdfBuilder";
+import { BotanicalBookshelfHero } from "./BotanicalBookshelfHero";
+import { ImmersiveReader } from "./ImmersiveReader";
+import { SupportModal } from "./SupportModal";
 
 export interface Phase1FoundationViewProps {
   onReplayPreloader?: () => void;
 }
 
 export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationViewProps) {
-  const { user, authReady, signingIn, authError, signInWithGoogle, signOutReader } = useAuth();
-
-  // Persistencia de lectura y validación estructural PDF corriendo silenciosamente en segundo plano
-  const {
-    getBookProgress,
-    updatePage,
-    markBookCompleted,
-  } = useReadingProgress({
-    userId: user?.uid ?? null,
-    authReady,
-  });
+  const { getBookProgress, updatePage, markBookCompleted } = useReadingProgress();
 
   const [activeReaderBook, setActiveReaderBook] = useState<BookIndexEntry | null>(null);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
@@ -54,7 +43,6 @@ export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationView
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#1A1917] flex flex-col overflow-x-clip">
-      {/* Top Bar Contract: exactamente 3 zonas separadas */}
       <header className="sticky top-0 z-30 bg-[#FAF7F2]/95 backdrop-blur-sm border-b border-[#E6DFD3]">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-8">
           <a
@@ -84,44 +72,10 @@ export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationView
               Apoya este proyecto libre
             </button>
           </nav>
-
-          <div className="flex items-center gap-3 shrink-0">
-            {user ? (
-              <button
-                type="button"
-                onClick={() => void signOutReader()}
-                className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-[#1A1917] bg-[#F3EFE8] border border-[#E6DFD3] rounded-lg hover:bg-[#EAE3D7] transition-colors whitespace-nowrap shrink-0"
-              >
-                <span className="max-w-[140px] truncate">{user.displayName || 'Lector'}</span>
-                <LogOut className="w-3.5 h-3.5 text-[#6B665E]" aria-hidden="true" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => void signInWithGoogle()}
-                disabled={signingIn}
-                className="px-4 py-2 text-xs font-medium text-[#FAF8F5] bg-[#1A1917] rounded-lg hover:bg-[#32302C] disabled:opacity-60 transition-colors whitespace-nowrap shrink-0"
-              >
-                {signingIn ? 'Conectando...' : 'Entrar con Google'}
-              </button>
-            )}
-          </div>
         </div>
       </header>
 
       <main id="top" className="flex-1">
-        {authError && (
-          <div className="max-w-6xl mx-auto px-6 pt-6">
-            <div
-              role="alert"
-              className="border border-[#D97757]/50 bg-[#D97757]/10 rounded-xl px-4 py-3 text-sm text-[#7A2E16]"
-            >
-              {authError}
-            </div>
-          </div>
-        )}
-
-        {/* Estantería principal con buscador, géneros, escritores y desplazamiento lateral */}
         <BotanicalBookshelfHero
           getBookProgress={getBookProgress}
           onStartBookReading={handleStartBookReading}
@@ -151,7 +105,7 @@ export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationView
               rel="noopener noreferrer"
               className="hover:text-[#1A1917] underline underline-offset-4 transition-colors"
             >
-              Repositorio abierto
+              Repositorio
             </a>
             <a
               href={`mailto:${BRAND_CONFIG.contactEmail}`}
