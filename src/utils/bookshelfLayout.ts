@@ -120,10 +120,19 @@ export function buildSlidingShelves(
   const chunks: BookIndexEntry[][] =
     filteredBooks.length <= 6
       ? [filteredBooks]
-      : [
-          filteredBooks.slice(0, Math.ceil(filteredBooks.length / 2)),
-          filteredBooks.slice(Math.ceil(filteredBooks.length / 2)),
-        ];
+      : (() => {
+          // 3 repisas equilibradas (16 → 6 / 5 / 5)
+          const n = filteredBooks.length;
+          const base = Math.floor(n / 3);
+          const extra = n % 3;
+          let start = 0;
+          return [0, 1, 2].map((i) => {
+            const size = base + (i < extra ? 1 : 0);
+            const chunk = filteredBooks.slice(start, start + size);
+            start += size;
+            return chunk;
+          });
+        })();
 
   const tiltPattern = [-1.0, 0.4, -0.3, 0.9, -0.7, 0.3];
 

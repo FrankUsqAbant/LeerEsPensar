@@ -40,7 +40,7 @@ test('filterBooksForShelf returns all 16 books without filter and narrows cleanl
   assert.equal(cervantesBooks[0].title, 'Don Quijote de la Mancha');
 });
 
-test('buildSlidingShelves splits 16 unfiltered books into 2 balanced horizontal shelves and focuses <=6 filtered books on 1 shelf', () => {
+test('buildSlidingShelves splits 16 unfiltered books into 3 balanced horizontal shelves and focuses <=6 filtered books on 1 shelf', () => {
   const books = getCatalogBooks();
 
   const fullShelves = buildSlidingShelves(books, {
@@ -49,9 +49,10 @@ test('buildSlidingShelves splits 16 unfiltered books into 2 balanced horizontal 
     authorId: 'Todos',
   });
   assert.equal(fullShelves.hasActiveFilter, false);
-  assert.equal(fullShelves.rows.length, 2);
-  assert.equal(fullShelves.rows[0].slots.length, 8);
-  assert.equal(fullShelves.rows[1].slots.length, 8);
+  assert.equal(fullShelves.rows.length, 3);
+  assert.equal(fullShelves.rows[0].slots.length, 6);
+  assert.equal(fullShelves.rows[1].slots.length, 5);
+  assert.equal(fullShelves.rows[2].slots.length, 5);
 
   const classicShelf = buildSlidingShelves(books, {
     search: '',

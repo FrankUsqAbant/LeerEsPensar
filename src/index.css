@@ -52,6 +52,16 @@
     display: none;
   }
 
+  .ivy-back { filter: brightness(0.62) saturate(0.85) blur(0.4px); opacity: 0.9; }
+  .ivy-front { filter: saturate(0.82) brightness(0.96) drop-shadow(3px 8px 6px rgba(30, 18, 6, 0.38)); }
+  /* Las hojas interiores se desvanecen antes de llegar a las flechas */
+  .ivy-front-left { -webkit-mask-image: linear-gradient(90deg, #000 62%, transparent 86%); mask-image: linear-gradient(90deg, #000 62%, transparent 86%); }
+  .ivy-front-right { -webkit-mask-image: linear-gradient(270deg, #000 62%, transparent 86%); mask-image: linear-gradient(270deg, #000 62%, transparent 86%); }
+  @media (max-width: 639px) {
+    .ivy-back { display: none; }
+    .ivy-front { height: 70% !important; opacity: 0.95; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
