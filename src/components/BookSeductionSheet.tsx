@@ -238,7 +238,7 @@ export function BookSeductionSheet({
                   className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-[#FAF8F5] border border-[#E6DFD3] text-[#1A1917] rounded-lg hover:bg-white transition-colors whitespace-nowrap"
                 >
                   <BookOpen className="w-4 h-4" aria-hidden="true" />
-                  {hasStarted ? 'Continuar en pantalla' : 'Leer y opinar'}
+                  {hasStarted ? 'Continuar en pantalla' : 'Leer en pantalla'}
                 </button>
                 <button
                   type="button"

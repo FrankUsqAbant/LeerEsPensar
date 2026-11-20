@@ -44,21 +44,21 @@ export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationView
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#1A1917] flex flex-col overflow-x-clip">
       <header className="sticky top-0 z-30 bg-[#FAF7F2]/95 backdrop-blur-sm border-b border-[#E6DFD3]">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3 sm:gap-8">
           <a
             href="#top"
-            className="font-serif text-2xl font-semibold tracking-tight text-[#1A1917] whitespace-nowrap shrink-0"
+            className="font-serif text-xl sm:text-2xl font-semibold tracking-tight text-[#1A1917] whitespace-nowrap shrink-0"
           >
             {BRAND_CONFIG.name}
           </a>
 
           <nav
             aria-label="Navegación principal"
-            className="hidden md:flex items-center gap-6 text-sm font-medium text-[#6B665E]"
+            className="flex items-center gap-3 sm:gap-6 text-sm font-medium text-[#6B665E]"
           >
             <a
               href="#biblioteca"
-              className="hover:text-[#1A1917] underline-offset-4 hover:underline transition-colors whitespace-nowrap shrink-0"
+              className="hidden md:inline hover:text-[#1A1917] underline-offset-4 hover:underline transition-colors whitespace-nowrap shrink-0"
             >
               Biblioteca
             </a>
@@ -69,7 +69,8 @@ export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationView
               className="inline-flex items-center gap-1.5 text-[#4A5D4E] hover:text-[#B45335] underline-offset-4 hover:underline transition-colors whitespace-nowrap shrink-0"
             >
               <Heart className="w-3.5 h-3.5" aria-hidden="true" />
-              Apoya este proyecto libre
+              <span className="hidden sm:inline">Apoya este proyecto libre</span>
+              <span className="sm:hidden">Apoyar</span>
             </button>
           </nav>
         </div>
@@ -83,30 +84,32 @@ export function Phase1FoundationView({ onReplayPreloader }: Phase1FoundationView
         />
       </main>
 
-      <footer className="border-t border-[#E6DFD3] py-6 px-6 text-xs text-[#6B665E]">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <footer className="border-t border-[#E6DFD3] py-6 px-4 sm:px-6 text-xs text-[#6B665E]">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col gap-1.5">
             <span>
               {BRAND_CONFIG.name} · {BRAND_CONFIG.location}
             </span>
-            <span aria-hidden="true">·</span>
-            <a
-              href={BRAND_CONFIG.authorSiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#1A1917] hover:text-[#B45335] underline underline-offset-4 transition-colors"
-            >
-              {BRAND_CONFIG.creator}
-            </a>
-            <span aria-hidden="true">·</span>
-            <a
-              href={BRAND_CONFIG.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[#1A1917] underline underline-offset-4 transition-colors"
-            >
-              Repositorio
-            </a>
+            <p>
+              Hecho por{' '}
+              <a
+                href={BRAND_CONFIG.authorSiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#1A1917] hover:text-[#B45335] underline underline-offset-4 transition-colors"
+              >
+                {BRAND_CONFIG.creator}
+              </a>
+              <span aria-hidden="true"> · </span>
+              <a
+                href={BRAND_CONFIG.githubProfileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#1A1917] underline underline-offset-4 transition-colors"
+              >
+                GitHub
+              </a>
+            </p>
             <a
               href={`mailto:${BRAND_CONFIG.contactEmail}`}
               className="inline-flex items-center gap-1 hover:text-[#1A1917] underline underline-offset-4 transition-colors"

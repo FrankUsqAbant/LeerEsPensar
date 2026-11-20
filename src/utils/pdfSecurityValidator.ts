@@ -327,7 +327,7 @@ export async function validatePdfFile(
         valid: false,
         errorCode: 'ENCRYPTED_PDF',
         userMessage:
-          'Este PDF está protegido con contraseña. LeerEsPensar requiere ejemplares libres de cifrado para la lectura comunitaria.',
+          'Este PDF está protegido con contraseña. LeerEsPensar requiere ejemplares libres de cifrado para la lectura abierta.',
         technicalReason: errMsg,
         canReport: false,
         details: baseDetails,

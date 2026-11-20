@@ -30,10 +30,18 @@ test('generateQrMatrix is deterministic for identical payload', () => {
   assert.deepEqual(first, second);
 });
 
-test('getSupportConfig returns safe HTTP URLs and clean phone digits', () => {
+test('getSupportConfig does not invent a phone number or donation URLs', () => {
   const config = getSupportConfig();
-  assert.ok(config.paypalUrl.startsWith('https://'));
-  assert.ok(config.kofiUrl.startsWith('https://'));
-  assert.ok(config.yapePhoneDigits.length >= 6);
+  assert.equal(config.yapeAvailable, false);
+  assert.equal(config.yapePhoneDigits, '');
+  assert.equal(config.yapePhoneDisplay, '');
+  assert.equal(config.plinAvailable, false);
+  assert.equal(config.plinPhoneDigits, '');
+  assert.equal(config.paypalUrl, '');
+  assert.equal(config.kofiUrl, '');
+  assert.equal(config.bmcUrl, '');
+});
+
+test('normalizePhoneDigits strips spaces and keeps the country code', () => {
   assert.equal(normalizePhoneDigits('+51 987 654 321'), '+51987654321');
 });
