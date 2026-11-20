@@ -6,8 +6,8 @@ pages_build_output_dir = "dist"
 binding = "BOOKS"
 bucket_name = "leer-es-pensar-books"
 
-# Sustituye este id por el del namespace KV real cuando lo crees en Cloudflare.
-# Mientras el binding no exista, el límite de intentos de login se omite.
+# Placeholder: sustituye este id por el del namespace KV real (LOGIN_RL) cuando Frank lo apruebe.
+# No crear el namespace todavía. En producción, sin este KV el login responde 503; en local el límite se omite.
 [[kv_namespaces]]
 binding = "LOGIN_RL"
 id = "00000000000000000000000000000000"

@@ -10,6 +10,7 @@ import {
   clearLoginFailures,
   clientIp,
   isLoginRateLimited,
+  productionLoginRequiresKv,
   recordLoginFailure,
 } from "../_lib/rateLimit";
 
@@ -22,6 +23,11 @@ export const onRequestPost: PagesFunction<SessionEnv> = async (context) => {
 
   if (!accessCode || !sessionSecret || !sessionVersion) {
     return jsonResponse({ ok: false, error: "El acceso no está configurado." }, 500);
+  }
+
+
+  if (productionLoginRequiresKv(env)) {
+    return jsonResponse({ ok: false, error: "El acceso no está disponible ahora." }, 503);
   }
 
   const limited = await isLoginRateLimited(env, ip);

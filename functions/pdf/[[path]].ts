@@ -1,5 +1,6 @@
 import type { SessionEnv } from "../_lib/auth";
 import { hasValidSession, jsonResponse } from "../_lib/auth";
+import { applySecurityHeaders } from "../_lib/securityHeaders";
 
 const SAFE_KEY = /^[A-Za-z0-9._/-]+$/;
 
@@ -63,6 +64,7 @@ export const onRequest: PagesFunction<SessionEnv> = async (context) => {
   if (typeof object.size === "number") {
     headers.set("Content-Length", String(object.size));
   }
+  applySecurityHeaders(headers);
 
   if (method === "HEAD") {
     return new Response(null, { status: 200, headers });

@@ -1,3 +1,5 @@
+import { applySecurityHeaders } from "./securityHeaders";
+
 export const COOKIE_NAME = "lep_session";
 export const MAX_AGE_SECONDS = 60 * 60 * 24 * 14;
 
@@ -122,14 +124,15 @@ export function jsonResponse(
   status = 200,
   extraHeaders: HeadersInit = {},
 ): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "private, no-store",
-      ...extraHeaders,
-    },
+  const headers = new Headers({
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "private, no-store",
   });
+  new Headers(extraHeaders).forEach((value, key) => {
+    headers.set(key, value);
+  });
+  applySecurityHeaders(headers);
+  return new Response(JSON.stringify(body), { status, headers });
 }
 
 export async function hasValidSession(request: Request, env: SessionEnv): Promise<boolean> {

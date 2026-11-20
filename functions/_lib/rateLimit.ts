@@ -30,6 +30,14 @@ function parseRecord(raw: string | null, now: number): FailureRecord | null {
   }
 }
 
+
+/** En producción (CF_PAGES) el login se cierra si falta el KV. En local se omite el límite. */
+export function productionLoginRequiresKv(
+  env: Pick<SessionEnv, "LOGIN_RL" | "CF_PAGES">,
+): boolean {
+  return Boolean(env.CF_PAGES) && !env.LOGIN_RL;
+}
+
 export async function isLoginRateLimited(
   env: Pick<SessionEnv, "LOGIN_RL">,
   ip: string,
