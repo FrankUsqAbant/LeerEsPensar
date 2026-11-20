@@ -30,7 +30,7 @@ export function BookVolume3D({
   const isDarkCloth = book.coverTheme.inkColor.toUpperCase().startsWith('#F');
 
   return (
-    <div className="relative shrink-0 w-[112px] sm:w-[124px] lg:w-[134px] flex flex-col items-stretch">
+    <div className="relative shrink-0 w-[122px] sm:w-[124px] lg:w-[134px] max-sm:snap-start flex flex-col items-stretch">
       {/* Sombra proyectada diagonalmente detrás del volumen contra el fondo de la estantería */}
       <div
         aria-hidden="true"
@@ -198,10 +198,10 @@ export function BookVolume3D({
             )}
 
             {/* Cabecera tipográfica: Género + detalle */}
-            <div className="relative z-10 space-y-1.5 pt-0.5">
+            <div className="relative z-10 space-y-1 pt-0.5">
               <div className="flex items-center justify-between gap-1.5">
                 <span
-                  className="block text-[9.5px] font-medium tracking-wider uppercase truncate"
+                  className="block text-[9px] sm:text-[10px] font-medium tracking-normal truncate"
                   style={{ color: secondaryInk }}
                 >
                   {book.genre}
@@ -210,7 +210,7 @@ export function BookVolume3D({
 
               {coverStyle === 'linen-medallion' ? (
                 <div
-                  className="mt-1 px-2 py-2 border rounded-[3px]"
+                  className="mt-1 px-2 py-1.5 border rounded-[3px]"
                   style={{
                     borderColor: book.coverTheme.accentColor,
                     backgroundColor: isDarkCloth
@@ -219,7 +219,7 @@ export function BookVolume3D({
                   }}
                 >
                   <h3
-                    className="font-serif text-[13px] sm:text-[14px] font-medium leading-[1.16] line-clamp-3"
+                    className="font-serif text-[13px] sm:text-[14px] font-medium leading-[1.16] line-clamp-2"
                     style={{ color: book.coverTheme.inkColor }}
                   >
                     {book.title}
@@ -236,14 +236,14 @@ export function BookVolume3D({
             </div>
 
             {/* Pie de portada: filete sutil, autor y tiempo/progreso */}
-            <div className="relative z-10 space-y-1.5 pb-0.5">
+            <div className="relative z-10 space-y-1 pb-0.5">
               <span
                 aria-hidden="true"
                 className="block w-8 h-[1px] opacity-65"
                 style={{ backgroundColor: book.coverTheme.accentColor }}
               />
               <p
-                className="text-xs font-semibold truncate"
+                className="text-[11.5px] font-semibold leading-tight line-clamp-2"
                 style={{ color: book.coverTheme.accentColor }}
               >
                 {book.authorName}

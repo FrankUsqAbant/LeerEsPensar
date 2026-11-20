@@ -4,8 +4,9 @@ import { BRAND_CONFIG } from '../config/brand';
 import { preloadEditorialAssets } from '../utils/assetPreloader';
 import {
   PRELOADER_FADE_MS,
-  PRELOADER_MAX_MS,
-  PRELOADER_MIN_MS,
+  HERO_FADE_MS,
+  heroStartMs,
+  preloaderMinMs,
   buildPreloaderWriterList,
   generateAuthorRainDrops,
   rainDrift,
@@ -16,8 +17,15 @@ import {
 
 export interface AuthorRainPreloaderProps {
   visible: boolean;
+  /** true: lluvia de autores completa (primera visita o repetición). false: solo el logo, breve. */
+  fullIntro?: boolean;
   onComplete: (result: { paperTextureUrl: string | null }) => void;
 }
+
+// Tiempo en que se apagan logo, textos y lluvia antes de disolver el pergamino.
+const CONTENT_FADE_MS = 300;
+// Duración de la versión corta (solo logo) en visitas siguientes.
+const SHORT_INTRO_MS = 1600;
 
 const TONE_COLOR_CLASS: Record<RainWriterDrop['tone'], string> = {
   ink: 'text-[#1A1917]/80',
@@ -61,11 +69,12 @@ function progressLabel(progress: number): string {
   return 'Biblioteca lista para leer';
 }
 
-export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloaderProps) {
+export function AuthorRainPreloader({ visible, fullIntro = true, onComplete }: AuthorRainPreloaderProps) {
   const prefersReducedMotion = useReducedMotion();
   const [grainUrl] = useState<string | null>(() => makeParchmentGrainUrl());
   const [paperTextureUrl, setPaperTextureUrl] = useState<string | null>(null);
   const [isExiting, setIsExiting] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(false);
 
   const drops = useMemo(() => {
     const width = typeof window === 'undefined' ? 1440 : window.innerWidth;
@@ -107,6 +116,15 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
     assetsReadyRef.current = false;
     setIsExiting(false);
 
+    // Lluvia primero; el logo llega cuando el último nombre se apaga.
+    // Visitas siguientes (o movimiento reducido): solo el logo, unos 2 s.
+    const showRain = fullIntro && !prefersReducedMotion;
+    const heroAt = showRain ? heroStartMs(drops.length) : 0;
+    const minMs = showRain ? preloaderMinMs(drops.length) : SHORT_INTRO_MS;
+    const maxMs = minMs + 600;
+    let heroShown = heroAt === 0;
+    setHeroVisible(heroShown);
+
     const beginExit = () => {
       if (exitingRef.current || controller.signal.aborted) return;
       exitingRef.current = true;
@@ -115,7 +133,7 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
         if (!controller.signal.aborted) {
           onCompleteRef.current({ paperTextureUrl: paperRef.current });
         }
-      }, prefersReducedMotion ? 180 : PRELOADER_FADE_MS);
+      }, prefersReducedMotion ? 180 : CONTENT_FADE_MS + PRELOADER_FADE_MS);
     };
 
     void preloadEditorialAssets(() => {
@@ -133,7 +151,7 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
       const height = viewportRef.current.height;
       const width = viewportRef.current.width;
 
-      if (!prefersReducedMotion) {
+      if (showRain) {
         const nodes = dropRefs.current;
         for (let i = 0; i < drops.length; i += 1) {
           const drop = drops[i];
@@ -145,7 +163,7 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
             continue;
           }
           const t = Math.min(1, local);
-          const y = -0.14 * height + rainFallEase(t) * (1.22 * height);
+          const y = 0.04 * height + rainFallEase(t) * (0.82 * height);
           const x = rainDrift(t, drop.driftPercent) * (width / 100);
           const rot =
             drop.initialRotationDeg + (drop.finalRotationDeg - drop.initialRotationDeg) * t;
@@ -154,7 +172,17 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
         }
       }
 
-      const visualProgress = Math.min(100, Math.round((elapsed / PRELOADER_MIN_MS) * 100));
+      if (!heroShown && elapsed >= heroAt) {
+        heroShown = true;
+        setHeroVisible(true);
+      }
+
+      // La barra se llena mientras el logo está a la vista.
+      const heroWindow = Math.max(1, minMs - heroAt);
+      const visualProgress = Math.min(
+        100,
+        Math.max(0, Math.round(((elapsed - heroAt) / heroWindow) * 100)),
+      );
       if (barRef.current) {
         barRef.current.style.transform = `scaleX(${visualProgress / 100})`;
       }
@@ -169,8 +197,8 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
       }
 
       if (
-        elapsed >= PRELOADER_MIN_MS &&
-        (assetsReadyRef.current || elapsed >= PRELOADER_MAX_MS)
+        elapsed >= minMs &&
+        (assetsReadyRef.current || elapsed >= maxMs)
       ) {
         beginExit();
       }
@@ -185,7 +213,7 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
       if (fadeTimer !== undefined) window.clearTimeout(fadeTimer);
       if (raf) window.cancelAnimationFrame(raf);
     };
-  }, [visible, prefersReducedMotion, drops]);
+  }, [visible, fullIntro, prefersReducedMotion, drops]);
 
   const handleSkip = () => {
     if (exitingRef.current) return;
@@ -193,7 +221,7 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
     setIsExiting(true);
     window.setTimeout(() => {
       onComplete({ paperTextureUrl });
-    }, prefersReducedMotion ? 140 : 360);
+    }, prefersReducedMotion ? 140 : CONTENT_FADE_MS + PRELOADER_FADE_MS);
   };
 
   return (
@@ -205,11 +233,13 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
           role="dialog"
           aria-modal="true"
           aria-label={`Cargando ${BRAND_CONFIG.name}`}
+          data-exiting={isExiting ? 'true' : 'false'}
           initial={{ opacity: 1 }}
           animate={{ opacity: isExiting ? 0 : 1 }}
           exit={{ opacity: 0 }}
           transition={{
             duration: prefersReducedMotion ? 0.16 : PRELOADER_FADE_MS / 1000,
+            delay: isExiting && !prefersReducedMotion ? CONTENT_FADE_MS / 1000 : 0,
             ease: [0.22, 1, 0.36, 1],
           }}
           className="preloader-parchment fixed inset-0 z-50 text-[#1A1917] overflow-hidden flex flex-col justify-between select-none"
@@ -237,9 +267,10 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
 
           <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-6 pb-10 text-center">
             <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={heroVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+              transition={{ duration: HERO_FADE_MS / 1000, ease: [0.22, 1, 0.36, 1] }}
+              aria-hidden={!heroVisible}
               className="max-w-lg w-full space-y-5"
             >
               <p className="text-xs font-medium tracking-widest text-[#4A5D4E]">
@@ -288,7 +319,7 @@ export function AuthorRainPreloader({ visible, onComplete }: AuthorRainPreloader
             data-testid="author-rain-layer"
             className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
           >
-            {!prefersReducedMotion &&
+            {fullIntro && !prefersReducedMotion &&
               drops.map((drop, index) => (
                 <span
                   key={drop.id}

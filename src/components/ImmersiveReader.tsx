@@ -373,51 +373,65 @@ export function ImmersiveReader({
       {/* Área principal de descarga verificada y lectura */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-8">
         <div className="max-w-3xl mx-auto space-y-8">
-          {/* Módulo destacado de Descarga PDF Segura */}
-          <section
-            aria-label="Centro de descarga PDF verificado"
-            className={`rounded-2xl border p-5 sm:p-6 space-y-4 ${barClasses[theme]}`}
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[#4A5D4E]">
-                  <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-                  Edición PDF lista para descargar sin riesgos
-                </p>
-                <h3 className="font-serif text-xl font-medium">
-                  {pdfFileName || `${book.slug}-LeerEsPensar.pdf`}
-                </h3>
-                <p className={`text-xs leading-relaxed ${mutedText}`}>
-                  {edition.editionNote}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => void handleDownloadVerifiedPdf()}
-                disabled={preparingPdf}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-medium bg-[#1A1917] text-[#FAF8F5] rounded-xl hover:bg-[#32302C] disabled:opacity-60 transition-colors shrink-0 whitespace-nowrap"
+          {/* Barra discreta: elegir texto o PDF original y, si se quiere, ver detalles del archivo.
+              La descarga vive solo en la cabecera para no repetir botones. */}
+          <section aria-label="Formato de lectura" className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div
+                role="group"
+                aria-label="Formato de lectura"
+                className="inline-flex rounded-lg border border-current/15 overflow-hidden text-xs font-medium"
               >
-                <Download className="w-4 h-4" aria-hidden="true" />
-                {preparingPdf ? 'Preparando ejemplar...' : 'Descargar PDF ahora'}
-              </button>
-            </div>
-
-            {pdfValidation && (
-              <div className="pt-3 border-t border-current/10 flex flex-wrap items-center justify-between gap-3 text-xs">
-                <span className="inline-flex items-center gap-1.5 font-medium text-[#4A5D4E]">
-                  <FileCheck2 className="w-4 h-4" aria-hidden="true" />
-                  Verificado con PDF.js ({pdfValidation.details.pageCount ?? 1} págs. ·{' '}
-                  {formatBytes(pdfValidation.details.fileSizeBytes)} · firma %PDF-
-                  {pdfValidation.details.pdfVersion})
-                </span>
-                {pdfValidation.details.sha256 && (
-                  <span className={`font-mono text-[11px] tabular-nums ${mutedText}`}>
-                    SHA-256: {pdfValidation.details.sha256.slice(0, 14)}…
-                  </span>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setViewMode('editorial')}
+                  aria-pressed={viewMode === 'editorial'}
+                  className={`px-3 py-1.5 transition-colors ${
+                    viewMode === 'editorial' ? 'bg-[#4A5D4E] text-[#FAF8F5]' : 'hover:bg-current/5'
+                  }`}
+                >
+                  Texto
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('pdf-preview')}
+                  aria-pressed={viewMode === 'pdf-preview'}
+                  className={`px-3 py-1.5 transition-colors ${
+                    viewMode === 'pdf-preview' ? 'bg-[#4A5D4E] text-[#FAF8F5]' : 'hover:bg-current/5'
+                  }`}
+                >
+                  PDF original
+                </button>
               </div>
-            )}
+
+              <details className={`group text-xs ${mutedText}`}>
+                <summary className="cursor-pointer list-none inline-flex items-center gap-1.5 rounded-md px-2 py-1 hover:bg-current/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B45335]">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#4A5D4E]" aria-hidden="true" />
+                  PDF seguro · ver detalles
+                </summary>
+                <div className={`mt-2 rounded-xl border p-4 space-y-2 max-w-md ${barClasses[theme]}`}>
+                  <p className="font-medium">{pdfFileName || `${book.slug}-LeerEsPensar.pdf`}</p>
+                  <p className="leading-relaxed">{edition.editionNote}</p>
+                  {pdfValidation ? (
+                    <>
+                      <p className="inline-flex items-center gap-1.5 text-[#4A5D4E]">
+                        <FileCheck2 className="w-3.5 h-3.5" aria-hidden="true" />
+                        Revisado: {pdfValidation.details.pageCount ?? 1} págs. ·{' '}
+                        {formatBytes(pdfValidation.details.fileSizeBytes)}
+                        {pdfValidation.details.containsActiveScripts ? '' : ' · sin scripts'}
+                      </p>
+                      {pdfValidation.details.sha256 && (
+                        <p className="font-mono text-[11px] tabular-nums break-all">
+                          SHA-256: {pdfValidation.details.sha256}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p>Se revisa automáticamente al descargarlo.</p>
+                  )}
+                </div>
+              </details>
+            </div>
 
             {downloadStatus && (
               <p
@@ -428,34 +442,6 @@ export function ImmersiveReader({
                 {downloadStatus}
               </p>
             )}
-
-            {/* Selector entre lectura editorial fluida o vista previa renderizada del PDF real */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setViewMode('editorial')}
-                aria-pressed={viewMode === 'editorial'}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
-                  viewMode === 'editorial'
-                    ? 'bg-[#4A5D4E] text-[#FAF8F5] border-[#4A5D4E]'
-                    : 'border-current/20 hover:bg-current/5'
-                }`}
-              >
-                Lectura editorial adaptativa
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('pdf-preview')}
-                aria-pressed={viewMode === 'pdf-preview'}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
-                  viewMode === 'pdf-preview'
-                    ? 'bg-[#4A5D4E] text-[#FAF8F5] border-[#4A5D4E]'
-                    : 'border-current/20 hover:bg-current/5'
-                }`}
-              >
-                Vista previa del PDF real
-              </button>
-            </div>
           </section>
 
           {/* Contenido de lectura o canvas PDF.js */}
@@ -463,7 +449,7 @@ export function ImmersiveReader({
             <section className="space-y-4">
               <div className="flex items-center justify-between text-xs">
                 <span className={mutedText}>
-                  Renderizado aislado con PDF.js (scripts deshabilitados)
+                  Así se ve el PDF que descargas
                 </span>
                 <div className="flex items-center gap-2">
                   <button

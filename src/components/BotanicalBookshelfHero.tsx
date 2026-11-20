@@ -134,7 +134,7 @@ function SlidingShelfRow({
             aria-label="Desplazar libros hacia la izquierda"
             disabled={!canScrollLeft}
             onClick={() => handleSlide(-1)}
-            className="absolute left-2 sm:left-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#FAF7F2]/95 border border-[#C7B69B] text-[#1A1917] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[#1A1917] hover:text-[#FAF7F2] hover:border-[#1A1917] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
+            className="absolute left-2 sm:left-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full max-sm:!hidden bg-[#FAF7F2]/95 border border-[#C7B69B] text-[#1A1917] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[#1A1917] hover:text-[#FAF7F2] hover:border-[#1A1917] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
           </button>
@@ -148,7 +148,7 @@ function SlidingShelfRow({
             aria-label="Desplazar libros hacia la derecha"
             disabled={!canScrollRight}
             onClick={() => handleSlide(1)}
-            className="absolute right-2 sm:right-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#FAF7F2]/95 border border-[#C7B69B] text-[#1A1917] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[#1A1917] hover:text-[#FAF7F2] hover:border-[#1A1917] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
+            className="absolute right-2 sm:right-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full max-sm:!hidden bg-[#FAF7F2]/95 border border-[#C7B69B] text-[#1A1917] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[#1A1917] hover:text-[#FAF7F2] hover:border-[#1A1917] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
           </button>
@@ -158,7 +158,7 @@ function SlidingShelfRow({
         <div
           ref={trackRef}
           data-testid={`shelf-track-${row.index}`}
-          className="book-perspective-stage relative z-10 mx-9 sm:mx-12 flex gap-3 sm:gap-4 lg:gap-5 items-end overflow-x-auto no-scrollbar pt-2 sm:pt-2.5 pb-0 px-1.5 sm:px-2"
+          className="book-perspective-stage relative z-10 mx-4 sm:mx-12 flex gap-3 sm:gap-4 lg:gap-5 items-end overflow-x-auto no-scrollbar pt-2 sm:pt-2.5 pb-0 px-1.5 sm:px-2 max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-px-1.5"
         >
           {row.slots.map((slot, slotIndex) => (
             <BookVolume3D
@@ -340,6 +340,11 @@ export function BotanicalBookshelfHero({
       />
 
       <div className="relative z-10 max-w-[84rem] mx-auto px-3 sm:px-5 lg:px-6 space-y-3 sm:space-y-4">
+        {/* Una sola línea de contexto: qué es y que es gratis */}
+        <p className="text-center text-[13px] sm:text-sm text-[#5C564E] px-4 pt-1">
+          Clásicos de la literatura para leer aquí o descargar en PDF, gratis.
+        </p>
+
         {/* Únicamente Buscador, Géneros y Escritores */}
         <div
           data-testid="bookshelf-filter-bar"

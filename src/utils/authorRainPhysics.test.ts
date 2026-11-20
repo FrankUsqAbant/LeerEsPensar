@@ -6,6 +6,13 @@ import {
   rainDrift,
   rainFallEase,
   rainOpacity,
+  heroStartMs,
+  preloaderMinMs,
+  rainEndMs,
+  RAIN_COUNT_DESKTOP,
+  RAIN_COUNT_MOBILE,
+  RAIN_FALL_SEC,
+  RAIN_STAGGER_SEC,
 } from './authorRainPhysics';
 
 test('buildPreloaderWriterList includes catalog authors without duplicates', () => {
@@ -17,44 +24,39 @@ test('buildPreloaderWriterList includes catalog authors without duplicates', () 
   assert.ok(writers.includes('Alejandra Pizarnik'));
 });
 
-test('generateAuthorRainDrops spreads a light desktop rain without crowding the edges', () => {
+test('generateAuthorRainDrops lets authors fall one by one, readable', () => {
   const writers = buildPreloaderWriterList(18);
   const drops = generateAuthorRainDrops(writers, 1440);
 
-  assert.equal(drops.length, 12);
-  for (const drop of drops) {
-    assert.ok(drop.xPercent >= 10 && drop.xPercent <= 90, `xPercent out of bounds: ${drop.xPercent}`);
-    assert.ok(Math.abs(drop.driftPercent) <= 5, `driftPercent out of bounds: ${drop.driftPercent}`);
-    assert.ok(Math.abs(drop.finalRotationDeg) <= 7.1, `rotation out of bounds: ${drop.finalRotationDeg}`);
-    assert.ok(drop.durationSec >= 1.08 && drop.durationSec <= 1.36);
-    assert.ok(drop.delaySec >= 0 && drop.delaySec <= 0.52);
-  }
-
-  const xs = [...drops.map((d) => d.xPercent)].sort((a, b) => a - b);
-  for (let i = 1; i < xs.length; i += 1) {
-    if (xs[i] - xs[i - 1] < 0.4) {
-      // Same lane in a later wave is fine; require they are not identical stacks
-      assert.ok(xs[i] - xs[i - 1] >= 0, 'x positions should be ordered');
+  assert.equal(drops.length, RAIN_COUNT_DESKTOP);
+  drops.forEach((drop, i) => {
+    assert.ok(drop.xPercent >= 18 && drop.xPercent <= 84, `xPercent out of bounds: ${drop.xPercent}`);
+    assert.ok(Math.abs(drop.finalRotationDeg) <= 3.6, `rotation out of bounds: ${drop.finalRotationDeg}`);
+    assert.equal(drop.durationSec, RAIN_FALL_SEC);
+    assert.ok(Math.abs(drop.delaySec - i * RAIN_STAGGER_SEC) < 1e-9, 'one name at a time');
+    assert.ok(drop.fontSizeRem >= 1.6, 'large enough to read');
+    if (i > 0) {
+      assert.ok(Math.abs(drop.xPercent - drops[i - 1].xPercent) >= 20, 'consecutive names fall apart');
     }
-  }
-  assert.ok(xs[xs.length - 1] - xs[0] >= 50, 'drops should span most of the width');
+  });
 });
 
-test('generateAuthorRainDrops reduces density on mobile without crowding the edges', () => {
+test('generateAuthorRainDrops keeps mobile names centred and fewer', () => {
   const writers = buildPreloaderWriterList(18);
   const mobileDrops = generateAuthorRainDrops(writers, 390);
-  assert.equal(mobileDrops.length, 6);
+  assert.equal(mobileDrops.length, RAIN_COUNT_MOBILE);
   for (const drop of mobileDrops) {
-    assert.ok(drop.xPercent >= 18 && drop.xPercent <= 82);
-    assert.ok(Math.abs(drop.driftPercent) <= 3.1);
+    assert.ok(drop.xPercent >= 34 && drop.xPercent <= 66);
   }
-
-  const firstWave = mobileDrops.slice(0, 3).sort((a, b) => a.xPercent - b.xPercent);
-  assert.ok(firstWave[1].xPercent - firstWave[0].xPercent >= 20);
-  assert.ok(firstWave[2].xPercent - firstWave[1].xPercent >= 20);
 });
 
-test('rainFallEase accelerates like gravity and stays in [0, 1]', () => {
+test('hero appears only after the rain and the preloader waits for it', () => {
+  assert.ok(heroStartMs(RAIN_COUNT_DESKTOP) < rainEndMs(RAIN_COUNT_DESKTOP));
+  assert.ok(heroStartMs(RAIN_COUNT_DESKTOP) >= rainEndMs(RAIN_COUNT_DESKTOP) - 400);
+  assert.ok(preloaderMinMs(RAIN_COUNT_DESKTOP) > heroStartMs(RAIN_COUNT_DESKTOP) + 1000);
+});
+
+test('rainFallEase falls gently and accelerates slightly and stays in [0, 1]', () => {
   assert.equal(rainFallEase(0), 0);
   assert.equal(rainFallEase(1), 1);
   assert.equal(rainFallEase(-0.2), 0);
