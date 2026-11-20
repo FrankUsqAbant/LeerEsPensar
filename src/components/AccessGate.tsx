@@ -36,13 +36,23 @@ export function AccessGate({ children }: { children: ReactNode }) {
         body: JSON.stringify({ code: code.trim() }),
       });
       if (!response.ok) {
-        setError(
-          response.status === 401
-            ? "El código no es válido."
-            : "No se pudo comprobar el código. Inténtalo de nuevo.",
-        );
+        let message = "No se pudo comprobar el código. Inténtalo de nuevo.";
+        if (response.status === 401) message = "El código no es válido.";
+        if (response.status === 429) {
+          message = "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.";
+        }
+        try {
+          const payload = (await response.json()) as { error?: unknown };
+          if (typeof payload?.error === "string" && payload.error.trim()) {
+            message = payload.error.trim();
+          }
+        } catch {
+          // keep fallback message
+        }
+        setError(message);
         return;
       }
+
       setStatus("open");
     } catch {
       setError("No se pudo comprobar el código. Inténtalo de nuevo.");
