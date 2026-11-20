@@ -1,0 +1,640 @@
+{
+  "version": "1.2.0",
+  "generatedAt": "2026-11-20T00:00:00Z",
+  "authors": [
+    {
+      "id": "jorge-luis-borges",
+      "name": "Jorge Luis Borges",
+      "country": "Argentina",
+      "lifespan": "1899–1986",
+      "shortBio": "Maestro del cuento filosófico, los laberintos bibliotecarios y la metafísica narrativa en lengua española."
+    },
+    {
+      "id": "virginia-woolf",
+      "name": "Virginia Woolf",
+      "country": "Reino Unido",
+      "lifespan": "1882–1941",
+      "shortBio": "Ensayista y novelista modernista, exploradora aguda del monólogo interior y la autonomía creativa."
+    },
+    {
+      "id": "julio-cortazar",
+      "name": "Julio Cortázar",
+      "country": "Argentina",
+      "lifespan": "1914–1984",
+      "shortBio": "Arquitecto de lo insólito cotidiano, donde lo fantástico irrumpe con naturalidad en la vida urbana."
+    },
+    {
+      "id": "albert-camus",
+      "name": "Albert Camus",
+      "country": "Argelia / Francia",
+      "lifespan": "1913–1960",
+      "shortBio": "Premio Nobel y pensador del absurdo, la lucidez moral y la belleza solar frente al silencio del mundo."
+    },
+    {
+      "id": "clarice-lispector",
+      "name": "Clarice Lispector",
+      "country": "Ucrania / Brasil",
+      "lifespan": "1920–1977",
+      "shortBio": "Voz irrepetible de la literatura latinoamericana, capaz de iluminar el instante mínimo con intensidad filosófica."
+    },
+    {
+      "id": "alejandra-pizarnik",
+      "name": "Alejandra Pizarnik",
+      "country": "Argentina",
+      "lifespan": "1936–1972",
+      "shortBio": "Poeta esencial de la brevedad precisa, el silencio, la noche y la búsqueda extrema del lenguaje."
+    },
+    {
+      "id": "juan-rulfo",
+      "name": "Juan Rulfo",
+      "country": "México",
+      "lifespan": "1917–1986",
+      "shortBio": "Creador de Comala y maestro absoluto de la economía verbal, los murmullos y la memoria espectral."
+    },
+    {
+      "id": "gabriel-garcia-marquez",
+      "name": "Gabriel García Márquez",
+      "country": "Colombia",
+      "lifespan": "1927–2014",
+      "shortBio": "Narrador universal de la dignidad humana, el tiempo detenido y la prosa musical del Caribe."
+    },
+    {
+      "id": "franz-kafka",
+      "name": "Franz Kafka",
+      "country": "Bohemia / Praga",
+      "lifespan": "1883–1924",
+      "shortBio": "Cronista inolvidable de la alienación moderna, los laberintos burocráticos y la transformación interior."
+    },
+    {
+      "id": "oscar-wilde",
+      "name": "Oscar Wilde",
+      "country": "Irlanda",
+      "lifespan": "1854–1900",
+      "shortBio": "Dramaturgo y novelista de ingenio afilado sobre el arte, la vanidad y las máscaras morales."
+    },
+    {
+      "id": "mary-shelley",
+      "name": "Mary Shelley",
+      "country": "Reino Unido",
+      "lifespan": "1797–1851",
+      "shortBio": "Pionera de la literatura gótica y la ciencia ficción filosófica sobre la creación y la responsabilidad."
+    },
+    {
+      "id": "jane-austen",
+      "name": "Jane Austen",
+      "country": "Reino Unido",
+      "lifespan": "1775–1817",
+      "shortBio": "Observadora sutil de las costumbres sociales, la ironía afectiva y la independencia de criterio."
+    },
+    {
+      "id": "arthur-conan-doyle",
+      "name": "Arthur Conan Doyle",
+      "country": "Reino Unido",
+      "lifespan": "1859–1930",
+      "shortBio": "Creador de Sherlock Holmes y del método deductivo como arte narrativo de observación precisa."
+    },
+    {
+      "id": "lewis-carroll",
+      "name": "Lewis Carroll",
+      "country": "Reino Unido",
+      "lifespan": "1832–1898",
+      "shortBio": "Matemático y escritor de mundos lógicos invertidos, juegos lingüísticos e imaginación inagotable."
+    },
+    {
+      "id": "miguel-de-cervantes",
+      "name": "Miguel de Cervantes",
+      "country": "España",
+      "lifespan": "1547–1616",
+      "shortBio": "Fundador de la novela moderna en lengua española, maestro de la ironía, el diálogo y la libertad."
+    },
+    {
+      "id": "herman-melville",
+      "name": "Herman Melville",
+      "country": "Estados Unidos",
+      "lifespan": "1819–1891",
+      "shortBio": "Navegante y narrador monumental de la obsesión humana frente a la inmensidad del océano."
+    }
+  ],
+  "books": [
+    {
+      "id": "borges-ficciones",
+      "slug": "ficciones",
+      "title": "Ficciones",
+      "subtitle": "El jardín de senderos que se bifurcan y Artificios",
+      "authorId": "jorge-luis-borges",
+      "authorName": "Jorge Luis Borges",
+      "genre": "Cuento filosófico",
+      "moods": ["Lúcido", "Onírico", "Contemplativo"],
+      "publicationYear": 1944,
+      "pageCount": 176,
+      "readingTimeMinutes": 145,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#172A22",
+        "paperTint": "#22392F",
+        "inkColor": "#F6EFE3",
+        "accentColor": "#E3B878",
+        "secondaryTextColor": "#CBD5CD",
+        "style": "cloth-frame"
+      },
+      "hookSummary": "Un libro breve que contiene bibliotecas infinitas, enciclopedias de planetas inventados y detectives atrapados en simetrías mortales. Cada relato parece una reseña erudita, hasta que descubres que el verdadero enigma eres tú leyendo.",
+      "takeaways": [
+        "Mirar el tiempo no como una línea recta, sino como una red infinita de bifurcaciones simultáneas.",
+        "Entender cómo una sola página de rigor preciso puede contener el peso entero de una novela.",
+        "Descubrir el placer intelectual de los espejos, los catálogos imposibles y la memoria total."
+      ],
+      "firstSip": "Debo a la conjunción de un espejo y de una enciclopedia el descubrimiento de Uqbar. El espejo inquietaba el fondo de un corredor en una quinta de la calle Gaona, en Ramos Mejía; la enciclopedia falazmente se llama The Anglo-American Cyclopaedia...",
+      "pdfUrl": "/catalog/pdfs/borges-ficciones.pdf",
+      "pdfSizeBytes": 1482040,
+      "featured": true
+    },
+    {
+      "id": "woolf-habitacion-propia",
+      "slug": "una-habitacion-propia",
+      "title": "Una habitación propia",
+      "subtitle": "Ensayo sobre la libertad material y la creación",
+      "authorId": "virginia-woolf",
+      "authorName": "Virginia Woolf",
+      "genre": "Ensayo literario",
+      "moods": ["Lúcido", "Íntimo", "Contemplativo"],
+      "publicationYear": 1929,
+      "pageCount": 118,
+      "readingTimeMinutes": 95,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#7B3A26",
+        "paperTint": "#EFE6D8",
+        "inkColor": "#1A1917",
+        "accentColor": "#8C422B",
+        "secondaryTextColor": "#5E574E",
+        "style": "half-bound"
+      },
+      "hookSummary": "Lo que empieza como una caminata otoñal por jardines universitarios se transforma en una defensa luminosa, irónica y feroz de una verdad elemental: para pensar y escribir con libertad hace falta primero un espacio con pestillo y sustento propio.",
+      "takeaways": [
+        "Comprender cómo las condiciones materiales silenciosas moldean quién puede crear y qué historias se conservan.",
+        "Disfrutar de una prosa ensayística viva que piensa en voz alta mientras pasea por librerías y bibliotecas.",
+        "Reivindicar la autonomía cotidiana del tiempo propio como acto creativo y político."
+      ],
+      "firstSip": "Pero, dirán ustedes, le hemos pedido que nos hable de las mujeres y la novela —¿qué tiene eso que ver con una habitación propia? Intentaré explicarme. Cuando me pidieron que hablara de las mujeres y la novela, me senté a orillas de un río a pensar qué significaban esas palabras...",
+      "pdfUrl": "/catalog/pdfs/woolf-habitacion-propia.pdf",
+      "pdfSizeBytes": 986420,
+      "featured": true
+    },
+    {
+      "id": "cortazar-bestiario",
+      "slug": "bestiario",
+      "title": "Bestiario",
+      "subtitle": "Ocho relatos donde lo cotidiano se agrieta",
+      "authorId": "julio-cortazar",
+      "authorName": "Julio Cortázar",
+      "genre": "Realismo fantástico",
+      "moods": ["Inquietante", "Onírico", "Íntimo"],
+      "publicationYear": 1951,
+      "pageCount": 152,
+      "readingTimeMinutes": 115,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#1B1B1D",
+        "paperTint": "#262527",
+        "inkColor": "#F5EFE5",
+        "accentColor": "#E28B68",
+        "secondaryTextColor": "#C4BEB4",
+        "style": "arch-monogram"
+      },
+      "hookSummary": "Una casa tomada por ruidos imprecisos, un joven que vomita conejitos blancos cuando está nervioso y un tigre que merodea por los cuartos de una estancia veraniega. Cortázar vuelve natural lo imposible hasta hacerte dudar de la quietud de tu propia sala.",
+      "takeaways": [
+        "Sentir la tensión quirúrgica de los cuentos donde lo extraño no explota, sino que se instala en silencio.",
+        "Apreciar el ritmo coloquial rioplatense convertido en instrumento de precisión literaria.",
+        "Observar cómo la rutina doméstica esconde grietas hacia lo inexplicable."
+      ],
+      "firstSip": "Nos gustaba la casa porque aparte de espaciosa y antigua (hoy que las casas antiguas sucumben a la más ventajosa liquidación de sus materiales) guardaba los recuerdos de nuestros bisabuelos, el abuelo paterno, nuestros padres y toda la infancia...",
+      "pdfUrl": "/catalog/pdfs/cortazar-bestiario.pdf",
+      "pdfSizeBytes": 1210800,
+      "featured": true
+    },
+    {
+      "id": "camus-extranjero",
+      "slug": "el-extranjero",
+      "title": "El extranjero",
+      "subtitle": "Crónica solar de la indiferencia y la verdad",
+      "authorId": "albert-camus",
+      "authorName": "Albert Camus",
+      "genre": "Novela existencial",
+      "moods": ["Lúcido", "Contemplativo", "Inquietante"],
+      "publicationYear": 1942,
+      "pageCount": 124,
+      "readingTimeMinutes": 100,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#945B22",
+        "paperTint": "#DFB56A",
+        "inkColor": "#1A1917",
+        "accentColor": "#5E3213",
+        "secondaryTextColor": "#3C2D1E",
+        "style": "linen-medallion"
+      },
+      "hookSummary": "Meursault no finge emociones que no siente, ni siquiera cuando el mundo entero exige un guion de dolor. Bajo el sol cegador de Argel, una novela seca y magnética interroga qué ocurre cuando alguien se niega a mentir sobre lo que experimenta.",
+      "takeaways": [
+        "Experimentar el poder de las frases cortas y desnudas para transmitir un estado de conciencia radical.",
+        "Reflexionar sobre las convenciones sociales que juzgan más la apariencia del sentimiento que los hechos.",
+        "Encontrar una extraña serenidad en aceptar la lucidez del presente frente a lo inevitable."
+      ],
+      "firstSip": "Hoy ha muerto mamá. O quizá ayer. No lo sé. Recibí un telegrama del asilo: «Falleció su madre. Entierro mañana. Sentidas condolencias». Pero no quiere decir nada. Quizá haya sido ayer...",
+      "pdfUrl": "/catalog/pdfs/camus-extranjero.pdf",
+      "pdfSizeBytes": 924110,
+      "featured": true
+    },
+    {
+      "id": "lispector-hora-estrella",
+      "slug": "la-hora-de-la-estrella",
+      "title": "La hora de la estrella",
+      "subtitle": "La historia mínima de Macabéa",
+      "authorId": "clarice-lispector",
+      "authorName": "Clarice Lispector",
+      "genre": "Novela lírica",
+      "moods": ["Melancólico", "Íntimo", "Contemplativo"],
+      "publicationYear": 1977,
+      "pageCount": 96,
+      "readingTimeMinutes": 75,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#3A4E3F",
+        "paperTint": "#F1ECE1",
+        "inkColor": "#1A1917",
+        "accentColor": "#4A5D4E",
+        "secondaryTextColor": "#5F594F",
+        "style": "linen-medallion"
+      },
+      "hookSummary": "Un escritor duda de su derecho a narrar la vida casi invisible de Macabéa, una mecanógrafa del nordeste que sobrevive en Río de Janeiro comiendo perritos calientes y escuchando la radio de la hora exacta. Una obra diminuta capaz de partirte el pecho con ternura.",
+      "takeaways": [
+        "Descubrir una escritura que piensa mientras siente, rompiendo la distancia entre narrador y personaje.",
+        "Mirar con respeto profundo la dignidad silenciosa de quienes pasan desapercibidos en las grandes ciudades.",
+        "Saborear metáforas inesperadas que iluminan la fragilidad de existir."
+      ],
+      "firstSip": "Todo en el mundo comenzó con un sí. Una molécula dijo sí a otra molécula y nació la vida. Pero antes de la prehistoria había la prehistoria de la prehistoria y había el nunca y había el sí...",
+      "pdfUrl": "/catalog/pdfs/lispector-hora-estrella.pdf",
+      "pdfSizeBytes": 742390,
+      "featured": false
+    },
+    {
+      "id": "pizarnik-arbol-de-diana",
+      "slug": "arbol-de-diana",
+      "title": "Árbol de Diana",
+      "subtitle": "Treinta y ocho poemas breves en vigilia",
+      "authorId": "alejandra-pizarnik",
+      "authorName": "Alejandra Pizarnik",
+      "genre": "Poesía",
+      "moods": ["Melancólico", "Onírico", "Íntimo"],
+      "publicationYear": 1962,
+      "pageCount": 64,
+      "readingTimeMinutes": 35,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#461C1F",
+        "paperTint": "#5E282C",
+        "inkColor": "#F7F0E5",
+        "accentColor": "#E4BA86",
+        "secondaryTextColor": "#DECBC8",
+        "style": "cloth-frame"
+      },
+      "hookSummary": "Cada poema cabe en tres o cuatro líneas, pero resuena durante días enteros como un cristal tocado en la madrugada. Pizarnik depura el idioma hasta dejar únicamente lo esencial: sombra, jardín, memoria y vértigo.",
+      "takeaways": [
+        "Comprobar que la brevedad extrema puede albergar una densidad emocional inagotable.",
+        "Aprender a leer los espacios en blanco de la página como parte activa del poema.",
+        "Conectar con una de las voces poéticas más puras y arriesgadas del siglo XX en español."
+      ],
+      "firstSip": "He dado el salto de mí al alba. He dejado mi cuerpo junto a la luz y he cantado la tristeza de lo que nace...",
+      "pdfUrl": "/catalog/pdfs/pizarnik-arbol-de-diana.pdf",
+      "pdfSizeBytes": 489200,
+      "featured": false
+    },
+    {
+      "id": "rulfo-pedro-paramo",
+      "slug": "pedro-paramo",
+      "title": "Pedro Páramo",
+      "subtitle": "Un viaje a Comala entre murmullos",
+      "authorId": "juan-rulfo",
+      "authorName": "Juan Rulfo",
+      "genre": "Realismo mágico",
+      "moods": ["Onírico", "Melancólico", "Inquietante"],
+      "publicationYear": 1955,
+      "pageCount": 132,
+      "readingTimeMinutes": 110,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#533827",
+        "paperTint": "#6B4935",
+        "inkColor": "#F7F1E7",
+        "accentColor": "#E8C38E",
+        "secondaryTextColor": "#DDD1C4",
+        "style": "half-bound"
+      },
+      "hookSummary": "Juan Preciado baja a un pueblo ardiente buscando a un padre llamado Pedro Páramo, y solo encuentra ecos en las paredes, mujeres hechas de polvo y voces que siguen recordando bajo la tierra. La novela breve que reescribió toda la narrativa en español.",
+      "takeaways": [
+        "Sumergirse en una estructura coral fragmentada donde cada voz suma una pieza del misterio.",
+        "Sentir cómo la tierra, el calor y el silencio se convierten en personajes vivos.",
+        "Descubrir por qué Borges y García Márquez consideraban estas páginas una obra perfecta."
+      ],
+      "firstSip": "Vine a Comala porque me dijeron que acá vivía mi padre, un tal Pedro Páramo. Mi madre me lo dijo. Y yo le prometí que vendría a verlo en cuanto ella muriera...",
+      "pdfUrl": "/catalog/pdfs/rulfo-pedro-paramo.pdf",
+      "pdfSizeBytes": 1120540,
+      "featured": true
+    },
+    {
+      "id": "garcia-marquez-coronel",
+      "slug": "el-coronel-no-tiene-quien-le-escriba",
+      "title": "El coronel no tiene quien le escriba",
+      "subtitle": "Cincuenta años de espera frente al muelle",
+      "authorId": "gabriel-garcia-marquez",
+      "authorName": "Gabriel García Márquez",
+      "genre": "Realismo mágico",
+      "moods": ["Contemplativo", "Melancólico", "Íntimo"],
+      "publicationYear": 1961,
+      "pageCount": 108,
+      "readingTimeMinutes": 85,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#354638",
+        "paperTint": "#475B4B",
+        "inkColor": "#F7F2E9",
+        "accentColor": "#E5BF87",
+        "secondaryTextColor": "#D5DFD5",
+        "style": "linen-medallion"
+      },
+      "hookSummary": "Cada viernes, durante quince años, un viejo coronel se pone su único traje limpio y camina hasta el correo esperando una pensión que nunca llega. Una historia austera sobre el hambre, la ternura conyugal y una última palabra inolvidable.",
+      "takeaways": [
+        "Conmoverse con una historia construida con humor seco, pudor y enorme economía narrativa.",
+        "Entender la dignidad obstinada como forma de resistencia cotidiana.",
+        "Llegar a uno de los cierres más célebres y contundentes de la literatura hispanoamericana."
+      ],
+      "firstSip": "El coronel destapó el tarro del café y comprobó que no había más de una cucharadita. Retiró la olla del fogón, vertió la mitad del agua en el piso de tierra y con un cuchillo raspó el interior del tarro...",
+      "pdfUrl": "/catalog/pdfs/garcia-marquez-coronel.pdf",
+      "pdfSizeBytes": 864920,
+      "featured": false
+    },
+    {
+      "id": "kafka-metamorfosis",
+      "slug": "la-metamorfosis",
+      "title": "La metamorfosis",
+      "subtitle": "El despertar de Gregorio Samsa",
+      "authorId": "franz-kafka",
+      "authorName": "Franz Kafka",
+      "genre": "Realismo fantástico",
+      "moods": ["Inquietante", "Melancólico", "Lúcido"],
+      "publicationYear": 1915,
+      "pageCount": 88,
+      "readingTimeMinutes": 70,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#231F1D",
+        "paperTint": "#312B28",
+        "inkColor": "#F4EDE0",
+        "accentColor": "#D98A6C",
+        "secondaryTextColor": "#CFC7BE",
+        "style": "arch-monogram"
+      },
+      "hookSummary": "Al despertar tras un sueño intranquilo, Gregorio Samsa descubre que se ha convertido en un monstruoso insecto, pero su primera angustia sigue siendo llegar a tiempo al tren de las cinco para pagar las deudas familiares.",
+      "takeaways": [
+        "Observar cómo la presión económica y familiar convierte al ser humano en pieza sustituible.",
+        "Apreciar la frialdad clínica con que Kafka vuelve cotidiano lo absurdo.",
+        "Releer una metáfora universal sobre la empatía, el encierro y la identidad."
+      ],
+      "firstSip": "Cuando Gregorio Samsa se despertó una mañana después de un sueño intranquilo, se encontró sobre su cama convertido en un monstruoso insecto...",
+      "pdfUrl": "/catalog/pdfs/kafka-metamorfosis.pdf",
+      "pdfSizeBytes": 698400,
+      "featured": true,
+      "sourceUrl": "https://www.gutenberg.org/ebooks/5200"
+    },
+    {
+      "id": "wilde-dorian-gray",
+      "slug": "el-retrato-de-dorian-gray",
+      "title": "El retrato de Dorian Gray",
+      "subtitle": "Juventud eterna y corrupción del lienzo",
+      "authorId": "oscar-wilde",
+      "authorName": "Oscar Wilde",
+      "genre": "Novela gótica",
+      "moods": ["Inquietante", "Lúcido", "Contemplativo"],
+      "publicationYear": 1890,
+      "pageCount": 212,
+      "readingTimeMinutes": 165,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#172133",
+        "paperTint": "#222E44",
+        "inkColor": "#F6EFE1",
+        "accentColor": "#DFC080",
+        "secondaryTextColor": "#C9D2E0",
+        "style": "linen-medallion"
+      },
+      "hookSummary": "Un joven de belleza deslumbrante desea que su retrato pintado al óleo envejezca en su lugar mientras él conserva intacto su rostro. Cada capricho y crueldad queda grabado en secreto detrás de una cortina cerrada.",
+      "takeaways": [
+        "Disfrutar algunos de los aforismos más brillantes e irónicos sobre el arte y la vanidad.",
+        "Reflexionar sobre el precio invisible de vivir solo para la apariencia y el placer inmediato.",
+        "Recorrer la atmósfera neblinosa y decadente del Londres victoriano."
+      ],
+      "firstSip": "El estudio estaba impregnado del intenso aroma de las rosas, y cuando la ligera brisa estival agitaba los árboles del jardín entraba por la puerta abierta el pesado perfume de las lilas...",
+      "pdfUrl": "/catalog/pdfs/wilde-dorian-gray.pdf",
+      "pdfSizeBytes": 1640200,
+      "featured": true,
+      "sourceUrl": "https://www.gutenberg.org/ebooks/174"
+    },
+    {
+      "id": "shelley-frankenstein",
+      "slug": "frankenstein",
+      "title": "Frankenstein",
+      "subtitle": "O el moderno Prometeo",
+      "authorId": "mary-shelley",
+      "authorName": "Mary Shelley",
+      "genre": "Novela gótica",
+      "moods": ["Inquietante", "Melancólico", "Contemplativo"],
+      "publicationYear": 1818,
+      "pageCount": 224,
+      "readingTimeMinutes": 180,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#163036",
+        "paperTint": "#1E3D44",
+        "inkColor": "#F4EDE2",
+        "accentColor": "#D49B6A",
+        "secondaryTextColor": "#C2D3D6",
+        "style": "cloth-frame"
+      },
+      "hookSummary": "Lejos del tópico cinematográfico, la novela escrita por una joven de diecinueve años es una tragedia conmovedora sobre una criatura elocuente que aprende a leer y solo busca pertenecer a un mundo que la rechaza desde su primer aliento.",
+      "takeaways": [
+        "Descubrir quién es el verdadero creador irresponsable detrás del mito moderno de la ciencia.",
+        "Escuchar la voz solitaria de la criatura narrando su aprendizaje del fuego, la música y el lenguaje.",
+        "Explorar la ética del conocimiento cuando la ambición supera al cuidado."
+      ],
+      "firstSip": "Te alegrará saber que ningún desastre ha acompañado el comienzo de una empresa que tú consideraste con tan mal presagio. Llegué aquí ayer, y mi primera tarea es asegurar a mi querida hermana mi bienestar...",
+      "pdfUrl": "/catalog/pdfs/shelley-frankenstein.pdf",
+      "pdfSizeBytes": 1725400,
+      "featured": true,
+      "sourceUrl": "https://www.gutenberg.org/ebooks/84"
+    },
+    {
+      "id": "austen-orgullo-y-prejuicio",
+      "slug": "orgullo-y-prejuicio",
+      "title": "Orgullo y prejuicio",
+      "subtitle": "Inteligencia, ironía y segundas miradas",
+      "authorId": "jane-austen",
+      "authorName": "Jane Austen",
+      "genre": "Novela clásica",
+      "moods": ["Lúcido", "Íntimo", "Contemplativo"],
+      "publicationYear": 1813,
+      "pageCount": 236,
+      "readingTimeMinutes": 195,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#465B4B",
+        "paperTint": "#DDE3D6",
+        "inkColor": "#1A221C",
+        "accentColor": "#445B49",
+        "secondaryTextColor": "#4A564D",
+        "style": "half-bound"
+      },
+      "hookSummary": "Elizabeth Bennet observa con lucidez irónica las maniobras matrimoniales de la campiña inglesa, hasta descubrir que sus propios juicios rápidos sobre el reservado señor Darcy también esconden orgullo y ceguera.",
+      "takeaways": [
+        "Saborear diálogos ágiles construidos con humor elegante y precisión psicológica.",
+        "Ver cómo la dignidad personal vence tanto a la arrogancia social como al prejuicio.",
+        "Entender por qué la primera frase de Austen sigue siendo una de las más citadas de la historia."
+      ],
+      "firstSip": "Es una verdad mundialmente reconocida que un hombre soltero, poseedor de una gran fortuna, necesita una esposa...",
+      "pdfUrl": "/catalog/pdfs/austen-orgullo-y-prejuicio.pdf",
+      "pdfSizeBytes": 1890300,
+      "featured": false,
+      "sourceUrl": "https://www.gutenberg.org/ebooks/1342"
+    },
+    {
+      "id": "doyle-estudio-en-escarlata",
+      "slug": "estudio-en-escarlata",
+      "title": "Estudio en escarlata",
+      "subtitle": "El primer caso de Sherlock Holmes y Watson",
+      "authorId": "arthur-conan-doyle",
+      "authorName": "Arthur Conan Doyle",
+      "genre": "Misterio",
+      "moods": ["Lúcido", "Inquietante"],
+      "publicationYear": 1887,
+      "pageCount": 144,
+      "readingTimeMinutes": 115,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#5E1D1B",
+        "paperTint": "#792826",
+        "inkColor": "#F9F3E9",
+        "accentColor": "#EAC88A",
+        "secondaryTextColor": "#E4C9C5",
+        "style": "arch-monogram"
+      },
+      "hookSummary": "Un médico recién regresado de la guerra comparte apartamento en el 221B de Baker Street con un excéntrico investigador que deduce la historia entera de un desconocido por las manchas de barro en sus botas.",
+      "takeaways": [
+        "Presenciar el nacimiento de la dupla deductiva más célebre de la literatura policial.",
+        "Aprender a mirar los detalles cotidianos que casi todos pasan por alto.",
+        "Seguir una investigación que cruza las calles brumosas de Londres con una venganza lejana."
+      ],
+      "firstSip": "En el año 1878 me licencié en Medicina por la Universidad de Londres, y me trasladé a Netley para asistir al curso que se prescribe a los cirujanos del ejército...",
+      "pdfUrl": "/catalog/pdfs/doyle-estudio-en-escarlata.pdf",
+      "pdfSizeBytes": 1150800,
+      "featured": false,
+      "sourceUrl": "https://www.gutenberg.org/ebooks/244"
+    },
+    {
+      "id": "carroll-alicia-maravillas",
+      "slug": "alicia-en-el-pais-de-las-maravillas",
+      "title": "Alicia en el país de las maravillas",
+      "subtitle": "Lógica invertida detrás del Conejo Blanco",
+      "authorId": "lewis-carroll",
+      "authorName": "Lewis Carroll",
+      "genre": "Fantasía",
+      "moods": ["Onírico", "Lúcido"],
+      "publicationYear": 1865,
+      "pageCount": 112,
+      "readingTimeMinutes": 85,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#1F3553",
+        "paperTint": "#2B466B",
+        "inkColor": "#F8F3E8",
+        "accentColor": "#EAC786",
+        "secondaryTextColor": "#C9D6E6",
+        "style": "linen-medallion"
+      },
+      "hookSummary": "Basta seguir a un conejo blanco con reloj de bolsillo para caer en un mundo donde el té nunca termina, las reglas cambian en mitad de la partida y cada acertijo esconde una crítica juguetona a la seriedad adulta.",
+      "takeaways": [
+        "Disfrutar los juegos de lógica y lenguaje que fascinaron a escritores y matemáticos por igual.",
+        "Recuperar la curiosidad sin miedo frente a situaciones ilógicas.",
+        "Descubrir un clásico que se lee distinto en la infancia y en la madurez."
+      ],
+      "firstSip": "Alicia empezaba a cansarse de estar sentada junto a su hermana a la orilla del río sin tener nada que hacer; de vez en cuando echaba una ojeada al libro que su hermana leía, pero no tenía dibujos ni diálogos...",
+      "pdfUrl": "/catalog/pdfs/carroll-alicia-maravillas.pdf",
+      "pdfSizeBytes": 890120,
+      "featured": false,
+      "sourceUrl": "https://www.gutenberg.org/ebooks/11"
+    },
+    {
+      "id": "cervantes-don-quijote",
+      "slug": "don-quijote-de-la-mancha",
+      "title": "Don Quijote de la Mancha",
+      "subtitle": "Selección esencial del caballero y Sancho",
+      "authorId": "miguel-de-cervantes",
+      "authorName": "Miguel de Cervantes",
+      "genre": "Novela clásica",
+      "moods": ["Lúcido", "Contemplativo", "Íntimo"],
+      "publicationYear": 1605,
+      "pageCount": 240,
+      "readingTimeMinutes": 210,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#4C1A19",
+        "paperTint": "#642422",
+        "inkColor": "#F7EFE1",
+        "accentColor": "#E5C17D",
+        "secondaryTextColor": "#DFC8C4",
+        "style": "cloth-frame"
+      },
+      "hookSummary": "Un hidalgo manchego decide salir a los caminos para reparar injusticias acompañado por un labrador pragmático. Entre molinos, ventas y conversaciones inolvidables nace la primera gran novela moderna.",
+      "takeaways": [
+        "Escuchar el diálogo eterno entre el idealismo desbordado y el sentido común de Sancho Panza.",
+        "Comprobar el humor vivo, la ternura y la libertad narrativa del idioma español.",
+        "Entender cómo los libros que leemos transforman nuestra forma de mirar la realidad."
+      ],
+      "firstSip": "En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor...",
+      "pdfUrl": "/catalog/pdfs/cervantes-don-quijote.pdf",
+      "pdfSizeBytes": 1954000,
+      "featured": true,
+      "sourceUrl": "https://www.gutenberg.org/ebooks/2000"
+    },
+    {
+      "id": "melville-moby-dick",
+      "slug": "moby-dick",
+      "title": "Moby Dick",
+      "subtitle": "La ballena blanca y la obsesión de Ahab",
+      "authorId": "herman-melville",
+      "authorName": "Herman Melville",
+      "genre": "Novela clásica",
+      "moods": ["Contemplativo", "Inquietante", "Lúcido"],
+      "publicationYear": 1851,
+      "pageCount": 232,
+      "readingTimeMinutes": 200,
+      "language": "es",
+      "coverTheme": {
+        "spineColor": "#12232E",
+        "paperTint": "#1B313F",
+        "inkColor": "#F4EFE6",
+        "accentColor": "#DFB87A",
+        "secondaryTextColor": "#C0CFD8",
+        "style": "half-bound"
+      },
+      "hookSummary": "Ismael embarca en el Pequod buscando el aire salado del mar abierto, sin imaginar que el capitán Ahab arrastra a toda la tripulación en una persecución metafísica contra la gran ballena blanca.",
+      "takeaways": [
+        "Sumergirse en la prosa oceánica más ambiciosa del siglo XIX.",
+        "Explorar la frontera entre la tenacidad humana y la obsesión destructiva.",
+        "Descubrir la fraternidad silenciosa de la marinería frente a la inmensidad natural."
+      ],
+      "firstSip": "Llamadme Ismael. Hace unos años —no importa exactamente cuántos—, teniendo poco o ningún dinero en el bolsillo y nada particular que me interesara en tierra, pensé que me daría una vuelta por el mar...",
+      "pdfUrl": "/catalog/pdfs/melville-moby-dick.pdf",
+      "pdfSizeBytes": 1842600,
+      "featured": false,
+      "sourceUrl": "https://www.gutenberg.org/ebooks/2701"
+    }
+  ]
+}

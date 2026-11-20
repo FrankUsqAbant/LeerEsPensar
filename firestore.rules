@@ -1,0 +1,174 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidUserPublic(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'createdAt']) &&
+        data.keys().hasOnly(['uid', 'displayName', 'photoUrl', 'createdAt']) &&
+        data.uid is string && data.uid == request.auth.uid && isValidId(data.uid) &&
+        data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 80 &&
+        (!('photoUrl' in data) || (data.photoUrl is string && data.photoUrl.size() <= 512)) &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidUserPrivate(data) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt']) &&
+        data.keys().hasOnly(['uid', 'email', 'createdAt']) &&
+        data.uid is string && data.uid == request.auth.uid && isValidId(data.uid) &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 254 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidReview(data) {
+      return data.keys().hasAll(['id', 'bookId', 'authorId', 'authorName', 'content', 'rating', 'reactionTags', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'bookId', 'authorId', 'authorName', 'content', 'rating', 'reactionTags', 'createdAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.bookId) &&
+        data.authorId is string && data.authorId == request.auth.uid && isValidId(data.authorId) &&
+        data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 80 &&
+        data.content is string && data.content.size() >= 10 && data.content.size() <= 1200 &&
+        data.rating is int && data.rating >= 1 && data.rating <= 5 &&
+        data.reactionTags is list && data.reactionTags.size() <= 3 &&
+        (data.reactionTags.size() == 0 || (data.reactionTags[0] is string && data.reactionTags[0].size() <= 64)) &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidReadingProgress(data) {
+      return data.keys().hasAll(['userId', 'bookId', 'currentPage', 'totalPages', 'percentage', 'completed', 'startedAt', 'lastReadAt']) &&
+        data.keys().hasOnly(['userId', 'bookId', 'currentPage', 'totalPages', 'percentage', 'completed', 'startedAt', 'lastReadAt']) &&
+        data.userId is string && data.userId == request.auth.uid && isValidId(data.userId) &&
+        isValidId(data.bookId) &&
+        data.currentPage is int && data.currentPage >= 1 && data.currentPage <= 20000 &&
+        data.totalPages is int && data.totalPages >= 1 && data.totalPages <= 20000 &&
+        data.currentPage <= data.totalPages &&
+        (data.percentage is int || data.percentage is float) && data.percentage >= 0 && data.percentage <= 100 &&
+        data.completed is bool &&
+        data.startedAt is timestamp &&
+        data.lastReadAt is timestamp;
+    }
+
+    function isValidSecurityReport(data) {
+      return data.keys().hasAll(['reporterId', 'fileName', 'errorCode', 'details', 'createdAt']) &&
+        data.keys().hasOnly(['reporterId', 'bookId', 'fileName', 'errorCode', 'details', 'createdAt']) &&
+        data.reporterId is string && data.reporterId == request.auth.uid && isValidId(data.reporterId) &&
+        (!('bookId' in data) || (data.bookId is string && data.bookId.size() <= 128)) &&
+        data.fileName is string && data.fileName.size() >= 1 && data.fileName.size() <= 180 &&
+        data.errorCode is string && data.errorCode.size() >= 1 && data.errorCode.size() <= 64 &&
+        data.details is string && data.details.size() >= 1 && data.details.size() <= 500 &&
+        data.createdAt is timestamp;
+    }
+
+    match /users_public/{userId} {
+      allow get: if isValidId(userId);
+      allow list: if false;
+      allow create: if isVerifiedUser() &&
+        isValidId(userId) &&
+        userId == request.auth.uid &&
+        isValidUserPublic(incoming()) &&
+        incoming().createdAt == request.time;
+      allow update: if isVerifiedUser() &&
+        isValidId(userId) &&
+        userId == request.auth.uid &&
+        isValidUserPublic(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoUrl']) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt;
+      allow delete: if false;
+    }
+
+    match /users_private/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+      allow list: if false;
+      allow create: if isSignedIn() &&
+        isValidId(userId) &&
+        userId == request.auth.uid &&
+        isValidUserPrivate(incoming()) &&
+        incoming().createdAt == request.time;
+      allow update, delete: if false;
+    }
+
+    match /books/{bookId} {
+      allow get: if isValidId(bookId);
+      allow list: if true;
+      allow write: if false;
+    }
+
+    match /reviews/{reviewId} {
+      allow get: if isValidId(reviewId);
+      allow list: if resource.data.bookId is string && resource.data.bookId.size() <= 128;
+      allow create: if isVerifiedUser() &&
+        isValidId(reviewId) &&
+        isValidReview(incoming()) &&
+        incoming().id == reviewId &&
+        incoming().createdAt == request.time;
+      allow update: if isVerifiedUser() &&
+        isValidId(reviewId) &&
+        existing().authorId == request.auth.uid &&
+        isValidReview(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['content', 'rating', 'reactionTags']) &&
+        incoming().id == existing().id &&
+        incoming().bookId == existing().bookId &&
+        incoming().authorId == existing().authorId &&
+        incoming().authorName == existing().authorName &&
+        incoming().createdAt == existing().createdAt;
+      allow delete: if isVerifiedUser() &&
+        isValidId(reviewId) &&
+        existing().authorId == request.auth.uid;
+    }
+
+    match /reading_progress/{progressId} {
+      allow get: if isSignedIn() && isValidId(progressId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isVerifiedUser() &&
+        isValidId(progressId) &&
+        isValidReadingProgress(incoming()) &&
+        incoming().startedAt == request.time &&
+        incoming().lastReadAt == request.time;
+      allow update: if isVerifiedUser() &&
+        isValidId(progressId) &&
+        existing().userId == request.auth.uid &&
+        isValidReadingProgress(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['currentPage', 'totalPages', 'percentage', 'completed', 'lastReadAt']) &&
+        incoming().userId == existing().userId &&
+        incoming().bookId == existing().bookId &&
+        incoming().startedAt == existing().startedAt &&
+        incoming().lastReadAt == request.time;
+      allow delete: if isSignedIn() &&
+        isValidId(progressId) &&
+        existing().userId == request.auth.uid;
+    }
+
+    match /security_reports/{reportId} {
+      allow read: if false;
+      allow create: if isVerifiedUser() &&
+        isValidId(reportId) &&
+        isValidSecurityReport(incoming()) &&
+        incoming().createdAt == request.time;
+      allow update, delete: if false;
+    }
+  }
+}
