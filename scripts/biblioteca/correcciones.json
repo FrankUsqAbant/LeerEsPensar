@@ -1,0 +1,15 @@
+{
+  "_ayuda": "Correcciones manuales que el catálogo aplica al final. 'autores': nombre detectado → nombre correcto. 'libros': ruta del archivo (como aparece en la revisión) → campos a corregir, por ejemplo {\"titulo\": \"...\", \"autor\": \"...\", \"anio\": 1955}. Usa 'omitir': true para no subir un archivo.",
+  "autores": {
+    "Fedor Dostoiewski": "Fiódor Dostoyevski",
+    "Harol Pinter": "Harold Pinter",
+    "Giovanni Bocaccio": "Giovanni Boccaccio",
+    "José Marti": "José Martí",
+    "C. G. Jung": "Carl Gustav Jung",
+    "Fray Luís de León": "Fray Luis de León",
+    "John Le Carre": "John le Carré",
+    "Jhon Boyne": "John Boyne",
+    "Elisabeth Kubler Ross": "Elisabeth Kübler-Ross"
+  },
+  "libros": {}
+}

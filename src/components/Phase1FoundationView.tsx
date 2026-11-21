@@ -13,6 +13,8 @@ import { LampSwitch } from "./LampSwitch";
 import { QrCode } from "./QrCode";
 import { ImmersiveReader } from "./ImmersiveReader";
 import { SupportModal } from "./SupportModal";
+import { AdminGratitudModal } from "./AdminGratitudModal";
+import { useGratitudeWall } from "../data/gratitud";
 
 export interface Phase1FoundationViewProps {
   onReplayPreloader?: () => void;
@@ -23,6 +25,9 @@ export function Phase1FoundationView(_props: Phase1FoundationViewProps) {
 
   const [activeReaderBook, setActiveReaderBook] = useState<BookIndexEntry | null>(null);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  // Muro de gratitud: se lee una vez y lo comparten el pie, el cuadro de apoyo y el panel «adm».
+  const { muro, setMuro } = useGratitudeWall();
 
   const handleStartBookReading = (book: BookIndexEntry) => {
     const existing = getBookProgress(book.id);
@@ -92,6 +97,15 @@ export function Phase1FoundationView(_props: Phase1FoundationViewProps) {
             <p className="mt-5 font-serif italic text-lg sm:text-xl text-[var(--room-ink)] leading-snug">
               Hecha en {BRAND_CONFIG.location}, para que leer siga siendo gratis.
             </p>
+            {muro.length > 0 && (
+              <p className="mt-2 text-[13px]" data-testid="footer-gratitud">
+                Gracias a{' '}
+                <span className="font-serif italic text-[var(--room-ink)]">
+                  {muro.slice(0, 3).map((e) => e.nombre).join(' · ')}
+                </span>{' '}
+                y a quienes sostienen esta biblioteca.
+              </p>
+            )}
             <nav
               aria-label="Enlaces del pie"
               className="mt-5 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-2 text-[13px]"
@@ -115,6 +129,16 @@ export function Phase1FoundationView(_props: Phase1FoundationViewProps) {
               >
                 Escríbenos
               </a>
+              <span aria-hidden="true" className="text-[var(--room-ink-soft)]/50">·</span>
+              {/* Acceso discreto del administrador (requiere su propio código) */}
+              <button
+                type="button"
+                onClick={() => setAdminOpen(true)}
+                data-testid="footer-adm"
+                className="text-[12px] text-[var(--room-ink-soft)]/70 underline decoration-dotted underline-offset-4 hover:text-[var(--room-ink)] transition-colors"
+              >
+                adm
+              </button>
             </nav>
           </div>
 
@@ -152,7 +176,15 @@ export function Phase1FoundationView(_props: Phase1FoundationViewProps) {
         onClose={() => setActiveReaderBook(null)}
       />
 
+      <AdminGratitudModal
+        open={adminOpen}
+        onClose={() => setAdminOpen(false)}
+        muro={muro}
+        onMuroChange={setMuro}
+      />
+
       <SupportModal
+        muro={muro}
         open={supportModalOpen}
         onClose={() => setSupportModalOpen(false)}
       />

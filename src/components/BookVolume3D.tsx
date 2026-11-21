@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { BookIndexEntry, ReadingProgress } from '../types/folio';
@@ -25,12 +26,22 @@ export function BookVolume3D({
   onOpen,
 }: BookVolume3DProps) {
   const pct = progress?.percentage ?? 0;
+  const [coverFailed, setCoverFailed] = useState(false);
+  const [coverLoaded, setCoverLoaded] = useState(false);
+  // Con portada real, el diseño generado (título/autor) no se muestra ni un instante:
+  // mientras carga se ve solo el color de la tapa y la imagen entra con un fundido.
+  const hasRealCover = Boolean(book.coverImage) && !coverFailed;
+  const coverImgRef = useRef<HTMLImageElement | null>(null);
+  useEffect(() => {
+    // Si la imagen ya estaba en caché, onLoad puede llegar antes que React: se revisa al montar.
+    if (coverImgRef.current?.complete && coverImgRef.current.naturalWidth > 0) setCoverLoaded(true);
+  }, []);
   const coverStyle = book.coverTheme.style ?? 'cloth-frame';
   const secondaryInk = book.coverTheme.secondaryTextColor ?? '#6B665E';
   const isDarkCloth = book.coverTheme.inkColor.toUpperCase().startsWith('#F');
 
   return (
-    <div className="relative shrink-0 w-[122px] sm:w-[124px] lg:w-[134px] max-sm:snap-start flex flex-col items-stretch">
+    <div data-shelf-item className="relative shrink-0 w-[122px] sm:w-[124px] lg:w-[134px] max-sm:snap-start flex flex-col items-stretch">
       {/* Sombra proyectada diagonalmente detrás del volumen contra el fondo de la estantería */}
       <div
         aria-hidden="true"
@@ -116,6 +127,35 @@ export function BookVolume3D({
             <span className="absolute bottom-5 inset-x-0.5 h-[1.5px] bg-white/25" />
           </div>
 
+          {/* Portada real (página 1 del PDF) sobre la tapa: el lomo y el canto siguen a la vista */}
+          {hasRealCover && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 right-0 z-[15] overflow-hidden rounded-r-[3px]"
+              style={{ left: `${physical.spineWidthPx}px` }}
+            >
+              <img
+                ref={coverImgRef}
+                src={book.coverImage}
+                alt=""
+                decoding="async"
+                draggable={false}
+                onLoad={() => setCoverLoaded(true)}
+                onError={() => setCoverFailed(true)}
+                className="h-full w-full object-cover transition-opacity duration-500 ease-out"
+                style={{ opacity: coverLoaded ? 1 : 0 }}
+              />
+              {/* Brillo y sombra de tapa para que se sienta impresa, no pegada */}
+              <span
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(90deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 9%), linear-gradient(132deg, rgba(255,248,232,0.22) 0%, rgba(255,248,232,0) 42%, rgba(0,0,0,0.16) 100%)',
+                }}
+              />
+            </span>
+          )}
+
           {/* Variante "half-bound": banda vertical de media pasta adicional sobre la tapa */}
           {coverStyle === 'half-bound' && (
             <div
@@ -130,7 +170,9 @@ export function BookVolume3D({
           )}
 
           {/* Superficie editorial de la portada */}
-          <div className="relative flex-1 p-2 sm:p-2.5 flex flex-col justify-between overflow-hidden">
+          <div
+            className={`relative flex-1 p-2 sm:p-2.5 flex flex-col justify-between overflow-hidden ${hasRealCover ? 'invisible' : ''}`}
+          >
             {/* Micro-textura de lino tejido */}
             <span
               aria-hidden="true"
@@ -204,7 +246,7 @@ export function BookVolume3D({
                   className="block text-[9px] sm:text-[10px] font-medium tracking-normal truncate"
                   style={{ color: secondaryInk }}
                 >
-                  {book.genre}
+                  {book.genre === 'Sin clasificar' ? '' : book.genre}
                 </span>
               </div>
 
@@ -253,7 +295,7 @@ export function BookVolume3D({
                 className="flex items-center justify-between text-[10px] tabular-nums"
                 style={{ color: secondaryInk }}
               >
-                <span>{book.readingTimeMinutes} min</span>
+                <span>{book.downloadOnly ? `${book.pageCount} págs.` : `${book.readingTimeMinutes} min`}</span>
                 {progress?.completed ? (
                   <span
                     className="inline-flex items-center gap-1 font-semibold"
@@ -270,7 +312,7 @@ export function BookVolume3D({
                     {pct}%
                   </span>
                 ) : (
-                  <span>{book.publicationYear}</span>
+                  <span>{book.publicationYear || ''}</span>
                 )}
               </div>
             </div>

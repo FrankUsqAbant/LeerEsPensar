@@ -3,12 +3,15 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
+import {bibliotecaLocal} from './scripts/biblioteca/vite-biblioteca-local';
 
 export default defineConfig(() => {
   return {
     plugins: [
       react(),
       tailwindcss(),
+      // Solo en desarrollo: catálogo y PDFs desde los archivos locales (ver docs/biblioteca.md).
+      bibliotecaLocal(__dirname),
       // Copies src/assets into dist/ so root-relative URLs like
       // "/src/assets/images/..." (e.g. generate_image output) still resolve
       // in production builds. Do not remove.

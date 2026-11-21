@@ -3,10 +3,14 @@ import { ExternalLink, Heart, X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { BRAND_CONFIG } from '../config/brand';
 import { YAPE_QR_SRC, getPaypalUrl } from '../config/support';
+import type { GratitudeEntry } from '../utils/gratitud';
+import { GratitudeWall } from './GratitudeWall';
 
 export interface SupportModalProps {
   open: boolean;
   onClose: () => void;
+  /** Muro de gratitud (nombres registrados por el administrador). */
+  muro?: GratitudeEntry[];
 }
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -15,7 +19,7 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
  * Apoyo voluntario: Yape (QR real) para Perú y PayPal para otros países.
  * Usa los colores de la sala, así se ve bien de día y de noche.
  */
-export function SupportModal({ open, onClose }: SupportModalProps) {
+export function SupportModal({ open, onClose, muro = [] }: SupportModalProps) {
   const prefersReducedMotion = useReducedMotion();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const paypalUrl = getPaypalUrl();
@@ -122,9 +126,7 @@ export function SupportModal({ open, onClose }: SupportModalProps) {
               </section>
             </div>
 
-            <p className="px-6 pb-6 pt-1 text-center text-xs text-[var(--room-ink-soft)]">
-              Gracias por cuidar este rincón de lectura.
-            </p>
+            <GratitudeWall muro={muro} />
           </motion.div>
         </motion.div>
       )}

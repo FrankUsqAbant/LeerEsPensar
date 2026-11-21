@@ -20,6 +20,22 @@ function fileNameFromKey(key: string): string {
   return segment.replace(/[\r\n"]/g, "");
 }
 
+/**
+ * Cabecera Content-Disposition. Con ?descargar=1 el navegador descarga el archivo;
+ * ?nombre= da un nombre legible ("Pedro Páramo - Juan Rulfo"), saneado y con UTF-8.
+ */
+function contentDisposition(key: string, url: URL): string {
+  const mode = url.searchParams.get("descargar") === "1" ? "attachment" : "inline";
+  const pretty = (url.searchParams.get("nombre") ?? "")
+    .replace(/[\\/:*?"<>|\r\n\t]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120);
+  if (!pretty) return `${mode}; filename="${fileNameFromKey(key)}"`;
+  const ascii = pretty.normalize("NFD").replace(/[^\x20-\x7e]/g, "").replace(/"/g, "") || "libro";
+  return `${mode}; filename="${ascii}.pdf"; filename*=UTF-8''${encodeURIComponent(`${pretty}.pdf`)}`;
+}
+
 function isAllowedPdfKey(key: string): boolean {
   if (!key || key.includes("..") || key.startsWith("/") || !SAFE_KEY.test(key)) {
     return false;
@@ -60,7 +76,7 @@ export const onRequest: PagesFunction<SessionEnv> = async (context) => {
   headers.set("Cache-Control", "private, no-store");
   headers.set("CDN-Cache-Control", "no-store");
   headers.set("X-Content-Type-Options", "nosniff");
-  headers.set("Content-Disposition", 'inline; filename="' + fileNameFromKey(key) + '"');
+  headers.set("Content-Disposition", contentDisposition(key, new URL(request.url)));
   if (typeof object.size === "number") {
     headers.set("Content-Length", String(object.size));
   }

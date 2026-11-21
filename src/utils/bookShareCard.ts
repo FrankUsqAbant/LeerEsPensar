@@ -146,7 +146,7 @@ export function drawBookShareCard(canvas: HTMLCanvasElement, book: BookIndexEntr
   ctx.textAlign = 'left';
   ctx.fillStyle = theme.secondaryTextColor ?? INK_SOFT;
   ctx.font = `500 21px ${SANS}`;
-  ctx.fillText(book.genre, innerX, coverY + 62);
+  if (book.genre !== 'Sin clasificar') ctx.fillText(book.genre, innerX, coverY + 62);
   ctx.fillStyle = theme.inkColor;
   ctx.font = `500 48px ${SERIF}`;
   const titleLines = wrapLines(ctx, book.title, innerW, 4);
@@ -159,7 +159,7 @@ export function drawBookShareCard(canvas: HTMLCanvasElement, book: BookIndexEntr
   );
   ctx.fillStyle = theme.secondaryTextColor ?? INK_SOFT;
   ctx.font = `500 19px ${SANS}`;
-  ctx.fillText(String(book.publicationYear), innerX, coverY + coverH - 34);
+  if (book.publicationYear) ctx.fillText(String(book.publicationYear), innerX, coverY + coverH - 34);
   ctx.textAlign = 'right';
   ctx.fillText(`${book.pageCount} págs.`, coverX + coverW - 34, coverY + coverH - 34);
 
@@ -168,7 +168,8 @@ export function drawBookShareCard(canvas: HTMLCanvasElement, book: BookIndexEntr
   ctx.fillStyle = INK;
   ctx.font = `italic 400 38px ${SERIF}`;
   const quote = sanitizePlainText(book.firstSip, 400);
-  const quoteLines = wrapLines(ctx, `«${quote}»`, W - 220, 3);
+  const quoteText = quote ? `«${quote}»` : `Un libro de ${book.authorName} que vale la pena leer.`;
+  const quoteLines = wrapLines(ctx, quoteText, W - 220, 3);
   const quoteTop = coverY + coverH + 112;
   quoteLines.forEach((line, i) => ctx.fillText(line, W / 2, quoteTop + i * 52));
   ctx.fillStyle = INK_SOFT;
@@ -215,6 +216,7 @@ function drawBrand(ctx: CanvasRenderingContext2D, centerX: number, baseline: num
 /** Texto para pegar en la publicación (Facebook no deja pre-llenarlo al compartir). */
 export function buildShareCaption(book: BookIndexEntry, siteUrl: string): string {
   const quote = sanitizePlainText(book.firstSip, 220);
+  const quoteLines = quote ? [`«${quote}»`, ''] : [];
   // "Realismo mágico" → "RealismoMágico" (Facebook acepta tildes en los hashtags).
   const genreTag = book.genre
     .split(/\s+/)
@@ -223,12 +225,11 @@ export function buildShareCaption(book: BookIndexEntry, siteUrl: string): string
   return [
     `📖 Acabo de leer «${book.title}», de ${book.authorName}.`,
     '',
-    `«${quote}»`,
-    '',
+    ...quoteLines,
     `Lo encontré en ${BRAND_CONFIG.name}: clásicos literarios para descargar en PDF, gratis.`,
     siteUrl,
     '',
-    `#${BRAND_CONFIG.name} #Lectura #${genreTag}`,
+    [`#${BRAND_CONFIG.name}`, '#Lectura', book.genre === 'Sin clasificar' ? '' : `#${genreTag}`].filter(Boolean).join(' '),
   ].join('\n');
 }
 

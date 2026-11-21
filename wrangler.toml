@@ -2,12 +2,20 @@ name = "leer-es-pensar"
 compatibility_date = "2026-11-20"
 pages_build_output_dir = "dist"
 
+# Versión de sesión: súbela (2, 3…) para cerrar la sesión de todos, p. ej. al cambiar el código de acceso.
+[vars]
+SESSION_VERSION = "1"
+
 [[r2_buckets]]
 binding = "BOOKS"
 bucket_name = "leer-es-pensar-books"
 
-# Placeholder: sustituye este id por el del namespace KV real (LOGIN_RL) cuando Frank lo apruebe.
-# No crear el namespace todavía. En producción, sin este KV el login responde 503; en local el límite se omite.
+# Límite de intentos del código de acceso (creado 2026-11-20). Sin este KV el login responde 503.
 [[kv_namespaces]]
 binding = "LOGIN_RL"
-id = "00000000000000000000000000000000"
+id = "97b71d42a8fe4aa7aa881a72cfd79073"
+
+# Muro de gratitud: nombres de quienes apoyan (solo "Nombre + inicial"). Lo edita Frank desde «adm».
+[[kv_namespaces]]
+binding = "GRATITUD"
+id = "67dff6546e8148d1b35995f6d56cab45"

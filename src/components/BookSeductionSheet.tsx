@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useAnimate, useReducedMotion } from 'motion/re
 import { getAuthorById } from '../data/catalogEngine';
 import type { BookIndexEntry, ReadingProgress } from '../types/folio';
 import { ShareBookModal } from './ShareBookModal';
+import { SIN_GENERO, downloadUrlFor, formatBytes } from '../data/library';
 
 export interface BookSeductionSheetProps {
   book: BookIndexEntry | null;
@@ -195,11 +196,22 @@ export function BookSeductionSheet({
                   borderLeftColor: book.coverTheme.spineColor,
                 }}
               >
+                {book.coverImage && (
+                  <img
+                    src={book.coverImage}
+                    alt=""
+                    decoding="async"
+                    className="absolute inset-0 z-10 h-full w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                )}
                 <span
                   className="text-[9px] md:text-[11px] font-medium tracking-wide"
                   style={{ color: book.coverTheme.secondaryTextColor ?? 'var(--room-ink-soft)' }}
                 >
-                  {book.genre}
+                  {book.genre === SIN_GENERO ? '' : book.genre}
                 </span>
                 <div>
                   <p
@@ -224,13 +236,15 @@ export function BookSeductionSheet({
                     color: book.coverTheme.secondaryTextColor ?? 'var(--room-ink-soft)',
                   }}
                 >
-                  <span>{book.publicationYear}</span>
+                  <span>{book.publicationYear || ''}</span>
                   <span>{book.pageCount} p.</span>
                 </div>
               </div>
 
               <p className="relative z-10 hidden md:block text-xs text-[var(--room-ink-soft)] tabular-nums text-center">
-                {book.genre} · {book.publicationYear} · {book.readingTimeMinutes} min · {book.pageCount} págs.
+                {[book.genre === SIN_GENERO ? null : book.genre, book.publicationYear || null, `${book.pageCount} págs.`, book.downloadOnly ? formatBytes(book.pdfSizeBytes) : `${book.readingTimeMinutes} min`]
+                  .filter(Boolean)
+                  .join(' · ')}
               </p>
             </div>
 
@@ -291,41 +305,72 @@ export function BookSeductionSheet({
                   )}
                 </header>
 
-                <section>
-                  <h3 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#4A5D4E] mb-2">
-                    De qué va
-                  </h3>
-                  <p className="text-[15px] text-[var(--room-ink)] leading-relaxed">{book.hookSummary}</p>
-                  <p className="text-xs text-[var(--room-ink-soft)] mt-3">
-                    Atmósfera:{' '}
-                    <span className="text-[var(--room-ink)]">{book.moods.join(' · ')}</span>
-                  </p>
-                </section>
+                {book.hookSummary && (
+                  <section>
+                    <h3 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#4A5D4E] mb-2">
+                      De qué va
+                    </h3>
+                    <p className="text-[15px] text-[var(--room-ink)] leading-relaxed">{book.hookSummary}</p>
+                    {book.moods.length > 0 && (
+                      <p className="text-xs text-[var(--room-ink-soft)] mt-3">
+                        Atmósfera:{' '}
+                        <span className="text-[var(--room-ink)]">{book.moods.join(' · ')}</span>
+                      </p>
+                    )}
+                  </section>
+                )}
 
-                <section>
-                  <h3 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#4A5D4E] mb-3">
-                    Lo que te vas a llevar
-                  </h3>
-                  <ol className="space-y-3">
-                    {book.takeaways.map((takeaway, index) => (
-                      <li key={index} className="flex gap-3 text-sm text-[var(--room-ink)]/90 leading-relaxed">
-                        <span className="font-serif italic text-lg leading-none text-[var(--room-accent)] tabular-nums pt-0.5 w-5 shrink-0">
-                          {index + 1}
-                        </span>
-                        <span>{takeaway}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </section>
+                {book.takeaways.length > 0 && (
+                  <section>
+                    <h3 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#4A5D4E] mb-3">
+                      Lo que te vas a llevar
+                    </h3>
+                    <ol className="space-y-3">
+                      {book.takeaways.map((takeaway, index) => (
+                        <li key={index} className="flex gap-3 text-sm text-[var(--room-ink)]/90 leading-relaxed">
+                          <span className="font-serif italic text-lg leading-none text-[var(--room-accent)] tabular-nums pt-0.5 w-5 shrink-0">
+                            {index + 1}
+                          </span>
+                          <span>{takeaway}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                )}
 
-                <section>
-                  <h3 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#4A5D4E] mb-3">
-                    Primer sorbo
-                  </h3>
-                  <blockquote className="border-l-2 border-[var(--room-accent)]/60 pl-4 font-serif italic text-lg text-[var(--room-ink)] leading-relaxed">
-                    «{book.firstSip}»
-                  </blockquote>
-                </section>
+                {book.firstSip && (
+                  <section>
+                    <h3 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#4A5D4E] mb-3">
+                      Primer sorbo
+                    </h3>
+                    <blockquote className="border-l-2 border-[var(--room-accent)]/60 pl-4 font-serif italic text-lg text-[var(--room-ink)] leading-relaxed">
+                      «{book.firstSip}»
+                    </blockquote>
+                  </section>
+                )}
+
+                {book.downloadOnly && (
+                  <section>
+                    <h3 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#4A5D4E] mb-3">
+                      El ejemplar
+                    </h3>
+                    <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm max-w-sm">
+                      {[
+                        ['Autor', book.authorName],
+                        ...(book.genre === SIN_GENERO ? [] : [['Género', book.genre]]),
+                        ['Año', book.publicationYear ? String(book.publicationYear) : 'Sin dato'],
+                        ['Páginas', book.pageCount ? String(book.pageCount) : 'Sin dato'],
+                        ['Lectura estimada', `${Math.round(book.readingTimeMinutes / 60) || 1} h aprox.`],
+                        ['Archivo', `PDF · ${formatBytes(book.pdfSizeBytes)}`],
+                      ].map(([etiqueta, valor]) => (
+                        <div key={etiqueta}>
+                          <dt className="text-xs text-[var(--room-ink-soft)]">{etiqueta}</dt>
+                          <dd className="text-[var(--room-ink)]">{valor}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </section>
+                )}
               </div>
 
               {/* Acciones al pie de la página */}
@@ -340,11 +385,25 @@ export function BookSeductionSheet({
                     <span>
                       Llevas {percentage}% · pág. {progress?.currentPage} de {book.pageCount}
                     </span>
+                  ) : book.downloadOnly ? (
+                    <span>PDF del libro completo · {formatBytes(book.pdfSizeBytes)}</span>
                   ) : (
                     <span>Gratis, en pantalla o en PDF</span>
                   )}
                 </p>
 
+                {book.downloadOnly ? (
+                  // Biblioteca grande: descarga directa del PDF real (el navegador lo baja sin cargarlo en memoria).
+                  <a
+                    href={downloadUrlFor(book)}
+                    download
+                    data-testid="seduction-download-pdf"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium bg-[var(--room-ink)] text-[var(--room-field)] rounded-full hover:bg-[var(--room-ink-soft)] transition-colors whitespace-nowrap"
+                  >
+                    <Download className="w-4 h-4" aria-hidden="true" />
+                    Descargar PDF
+                  </a>
+                ) : (
                 <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5">
                   <button
                     type="button"
@@ -365,6 +424,7 @@ export function BookSeductionSheet({
                     {downloadingPdf ? 'Preparando PDF…' : 'Descargar PDF'}
                   </button>
                 </div>
+                )}
               </div>
             </div>
           </div>

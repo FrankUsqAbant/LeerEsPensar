@@ -10,6 +10,9 @@ export interface SessionEnv {
   CF_PAGES?: string;
   BOOKS?: R2Bucket;
   LOGIN_RL?: KVNamespace;
+  /** Código del administrador (Frank) para registrar donantes en el muro de gratitud. */
+  ADMIN_CODE?: string;
+  GRATITUD?: KVNamespace;
 }
 
 function textBytes(value: string): Uint8Array {

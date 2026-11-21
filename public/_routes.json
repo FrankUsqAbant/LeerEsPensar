@@ -1,5 +1,9 @@
 {
   "version": 1,
-  "include": ["/pdf/*", "/api/*"],
+  "include": [
+    "/pdf/*",
+    "/api/*",
+    "/portada/*"
+  ],
   "exclude": []
 }

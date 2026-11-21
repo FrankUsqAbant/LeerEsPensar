@@ -8,3 +8,6 @@ coverage/
 !.env.example
 .dev.vars
 .wrangler/
+
+# Salidas locales de scripts (contienen nombres de archivos personales)
+scripts/biblioteca/salida/

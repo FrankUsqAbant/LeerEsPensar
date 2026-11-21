@@ -1,0 +1,36 @@
+<a href="https://leer-es-pensar.pages.dev">
+  <img src="docs/hero.webp" alt="LeerEsPensar: estante de libros con portadas reales bajo una lámpara de lectura" width="100%" />
+</a>
+
+# LeerEsPensar
+
+Biblioteca privada de clásicos literarios para descargar en PDF, gratis. Una sala de lectura
+con lámpara (claro/oscuro), estante de más de 1700 libros con sus portadas reales y descarga
+directa. → **[leer-es-pensar.pages.dev](https://leer-es-pensar.pages.dev)** (acceso con código del grupo)
+
+- **Estante por autor** con bienvenida de portadas destacadas, búsqueda y desplazamiento suave.
+- **Ficha en doble página** que se abre desde el estante y descarga el PDF real.
+- **Lámpara** que cambia de día a noche y luz que sigue la hora local.
+- **Apoyo** con Yape y PayPal, y **muro de gratitud** que administra el autor.
+- **Compartir** cada libro en Facebook con una tarjeta lista.
+
+## Estructura
+
+```
+src/                 Aplicación (React + Vite + Tailwind)
+functions/           Cloudflare Pages Functions: acceso, catálogo, PDFs, portadas, gratitud
+public/              Archivos estáticos (cabeceras, QR, texturas, favicon)
+scripts/biblioteca/  Herramientas para inventariar, catalogar y subir los PDFs a R2
+docs/                Guía de la biblioteca e imagen del README
+```
+
+## Uso
+
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm test         # pruebas
+npm run build && npx wrangler pages deploy --branch main
+```
+
+Los libros viven en Cloudflare R2 (privado). Cómo agregarlos: [docs/biblioteca.md](docs/biblioteca.md).

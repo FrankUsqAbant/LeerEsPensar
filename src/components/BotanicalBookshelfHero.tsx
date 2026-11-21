@@ -9,7 +9,6 @@ import {
 import { useReducedMotion } from 'motion/react';
 import {
   getAllGenres,
-  getCatalogBooks,
 } from '../data/catalogEngine';
 import type {
   BookGenre,
@@ -17,13 +16,17 @@ import type {
   ReadingProgress,
 } from '../types/folio';
 import {
+  buildLibraryShelves,
   buildSlidingShelves,
+  daySeedFor,
   computePhysicalBookStyle,
   type BookshelfRow,
 } from '../utils/bookshelfLayout';
 import { BookSeductionSheet } from './BookSeductionSheet';
 import { BookVolume3D } from './BookVolume3D';
 import { GenreRibbon } from './GenreRibbon';
+import { SIN_GENERO, useLibraryBooks } from '../data/library';
+import { useShelfScroller } from '../hooks/useShelfScroller';
 
 export interface BotanicalBookshelfHeroProps {
   getBookProgress: (bookId: string) => ReadingProgress | undefined;
@@ -47,6 +50,8 @@ interface SlidingShelfRowProps {
   prefersReducedMotion: boolean | null;
   getBookProgress: (bookId: string) => ReadingProgress | undefined;
   onOpenBook: (book: BookIndexEntry) => void;
+  /** Muestra el nombre de la repisa ("Recién llegados", "Para hoy", "Resultados"). */
+  showLabel?: boolean;
 }
 
 function SlidingShelfRow({
@@ -56,10 +61,17 @@ function SlidingShelfRow({
   prefersReducedMotion,
   getBookProgress,
   onOpenBook,
+  showLabel = false,
 }: SlidingShelfRowProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  // Desplazamiento suave + solo se dibujan los libros visibles (repisas de cientos de libros).
+  const { win, arrowProps, trackProps, resetToStart } = useShelfScroller(
+    trackRef,
+    row.slots.length,
+    prefersReducedMotion,
+  );
 
   const updateScrollBounds = useCallback(() => {
     const node = trackRef.current;
@@ -71,11 +83,10 @@ function SlidingShelfRow({
 
   // Al cambiar género, escritor o búsqueda, regresa suavemente al inicio de la repisa
   useEffect(() => {
-    const node = trackRef.current;
-    if (!node) return;
-    node.scrollTo({ left: 0, behavior: 'auto' });
+    resetToStart();
     const raf = window.requestAnimationFrame(updateScrollBounds);
     return () => window.cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterKey, row.slots.length, updateScrollBounds]);
 
   useEffect(() => {
@@ -100,20 +111,15 @@ function SlidingShelfRow({
     };
   }, [updateScrollBounds]);
 
-  const handleSlide = (direction: -1 | 1) => {
-    const node = trackRef.current;
-    if (!node) return;
-    const step = Math.max(220, Math.round(node.clientWidth * 0.65));
-    node.scrollBy({
-      left: direction * step,
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-    });
-  };
-
   const isScrollable = canScrollLeft || canScrollRight;
 
   return (
     <div data-shelf-index={row.index} className="relative">
+      {showLabel && (
+        <p className="relative z-20 px-5 sm:px-9 pt-1 -mb-0.5 font-serif italic text-[13px] sm:text-sm text-[var(--room-ink-soft)]">
+          {row.label}
+        </p>
+      )}
       {/* Zona de libros físicos iluminada dentro del nicho arquitectónico */}
       <div className="relative">
         {/* Luz cálida de galería descendiendo sobre las portadas */}
@@ -133,7 +139,8 @@ function SlidingShelfRow({
             data-testid={`shelf-prev-${row.index}`}
             aria-label="Desplazar libros hacia la izquierda"
             disabled={!canScrollLeft}
-            onClick={() => handleSlide(-1)}
+            title="Clic: avanzar · Mantén presionado: deslizar"
+            {...arrowProps(-1)}
             className="absolute left-2 sm:left-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full max-sm:!hidden bg-[var(--room-field)]/95 border border-[#C7B69B] text-[var(--room-ink)] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[var(--room-ink)] hover:text-[var(--room-field)] hover:border-[var(--room-ink)] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
@@ -147,7 +154,8 @@ function SlidingShelfRow({
             data-testid={`shelf-next-${row.index}`}
             aria-label="Desplazar libros hacia la derecha"
             disabled={!canScrollRight}
-            onClick={() => handleSlide(1)}
+            title="Clic: avanzar · Mantén presionado: deslizar"
+            {...arrowProps(1)}
             className="absolute right-2 sm:right-3.5 top-1/2 -translate-y-1/2 z-[45] w-8 h-8 sm:w-9 sm:h-9 rounded-full max-sm:!hidden bg-[var(--room-field)]/95 border border-[#C7B69B] text-[var(--room-ink)] shadow-[0_8px_18px_-6px_rgba(32,20,8,0.42)] hover:bg-[var(--room-ink)] hover:text-[var(--room-field)] hover:border-[var(--room-ink)] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
@@ -158,23 +166,35 @@ function SlidingShelfRow({
         <div
           ref={trackRef}
           data-testid={`shelf-track-${row.index}`}
-          className="book-perspective-stage relative z-10 mx-4 sm:mx-12 flex gap-3 sm:gap-4 lg:gap-5 items-end overflow-x-auto no-scrollbar pt-2 sm:pt-2.5 pb-0 px-1.5 sm:px-2 max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-px-1.5"
+          {...trackProps}
+          className="book-perspective-stage relative z-10 mx-4 sm:mx-12 flex gap-3 sm:gap-4 lg:gap-5 items-end overflow-x-auto no-scrollbar pt-2 sm:pt-2.5 pb-0 px-1.5 sm:px-2 max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-px-1.5 sm:cursor-grab select-none"
         >
-          {row.slots.map((slot, slotIndex) => (
-            <BookVolume3D
-              key={slot.book.id}
-              book={slot.book}
-              heightPx={slot.heightPx}
-              physical={computePhysicalBookStyle(
-                slot.book.pageCount,
-                row.index,
-                slotIndex,
-              )}
-              progress={getBookProgress(slot.book.id)}
-              prefersReducedMotion={prefersReducedMotion}
-              onOpen={onOpenBook}
+          {/* Espacio de los libros a la izquierda que no se dibujan (fuera de la vista) */}
+          {win.start > 0 && win.span > 0 && (
+            <div aria-hidden="true" className="shrink-0 h-px" style={{ width: win.start * win.span - win.gap }} />
+          )}
+          {row.slots.slice(win.start, win.end).map((slot, i) => {
+            const slotIndex = win.start + i;
+            return (
+              <BookVolume3D
+                key={slot.book.id}
+                book={slot.book}
+                heightPx={slot.heightPx}
+                physical={computePhysicalBookStyle(slot.book.pageCount, row.index, slotIndex)}
+                progress={getBookProgress(slot.book.id)}
+                prefersReducedMotion={prefersReducedMotion}
+                onOpen={onOpenBook}
+              />
+            );
+          })}
+          {/* Espacio de los libros a la derecha que aún no se dibujan */}
+          {win.end < row.slots.length && win.span > 0 && (
+            <div
+              aria-hidden="true"
+              className="shrink-0 h-px"
+              style={{ width: (row.slots.length - win.end) * win.span - win.gap }}
             />
-          ))}
+          )}
         </div>
       </div>
 
@@ -239,8 +259,11 @@ export function BotanicalBookshelfHero({
   const stuccoFilterId = useId();
   const woodGrainFilterId = useId();
 
-  const books = useMemo(() => getCatalogBooks(), []);
+  // Biblioteca completa desde /api/catalogo; mientras carga (o si falla), la selección de 16 libros.
+  const { books, status } = useLibraryBooks();
+  const isLibrary = status === 'biblioteca';
   const genres = useMemo(() => getAllGenres(books), [books]);
+  const daySeed = useMemo(() => daySeedFor(new Date()), []);
 
   const [search, setSearch] = useState('');
   const [genre, setGenre] = useState<BookGenre | 'Todos'>('Todos');
@@ -250,8 +273,18 @@ export function BotanicalBookshelfHero({
   const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const shelfData = useMemo(
-    () => buildSlidingShelves(books, { search, genre, authorId }),
-    [books, search, genre, authorId],
+    () =>
+      isLibrary
+        ? buildLibraryShelves(books, { search, genre, authorId }, {
+            newestCount: 24,
+            sectionSize: 150,
+            resultsPerRow: 40,
+            daySeed,
+            featuredCount: 24,
+            featuredMinScore: 70,
+          })
+        : { ...buildSlidingShelves(books, { search, genre, authorId }), shown: 0, hasMore: false },
+    [books, isLibrary, search, genre, authorId, daySeed],
   );
 
   const filterKey = `${search}__${genre}__${authorId}`;
@@ -377,11 +410,13 @@ export function BotanicalBookshelfHero({
             )}
           </div>
 
+          {genres.filter((g) => g !== SIN_GENERO).length >= 2 && (
           <GenreRibbon
             items={['Todos', ...genres] as Array<BookGenre | 'Todos'>}
             active={genre}
             onSelect={(item) => setGenre(genre === item && item !== 'Todos' ? 'Todos' : item)}
           />
+          )}
         </div>
 
         {readerNotice && (
@@ -454,6 +489,7 @@ export function BotanicalBookshelfHero({
                   prefersReducedMotion={prefersReducedMotion}
                   getBookProgress={getBookProgress}
                   onOpenBook={handleOpenBook}
+                  showLabel={isLibrary}
                 />
               ))
             )}
@@ -467,6 +503,15 @@ export function BotanicalBookshelfHero({
           />
         </div>
         </div>
+
+        {/* Biblioteca grande: cuántos libros hay (todos están en alguna repisa) */}
+        {isLibrary && shelfData.rows.length > 0 && (
+          <p className="pt-1 text-center text-xs text-[var(--room-ink-soft)] tabular-nums" aria-live="polite">
+            {shelfData.hasActiveFilter
+              ? `${shelfData.totalMatches} ${shelfData.totalMatches === 1 ? 'libro encontrado' : 'libros encontrados'}`
+              : `${books.length} libros en la biblioteca · desliza cada repisa para ver más`}
+          </p>
+        )}
       </div>
 
       <BookSeductionSheet

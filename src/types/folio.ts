@@ -17,7 +17,9 @@ export type BookGenre =
   | 'Novela gótica'
   | 'Novela clásica'
   | 'Misterio'
-  | 'Fantasía';
+  | 'Fantasía'
+  // Géneros de la biblioteca grande (catálogo en R2): texto libre, p. ej. "Ciencia".
+  | (string & {});
 
 export type BookCoverStyle =
   | 'cloth-frame'
@@ -67,6 +69,14 @@ export interface BookIndexEntry {
   pdfSizeBytes: number;
   featured?: boolean;
   sourceUrl?: string;
+  /** Libro de la biblioteca grande: se descarga el PDF real directo (sin lector en pantalla). */
+  downloadOnly?: boolean;
+  /** Fecha en que se agregó a la biblioteca (AAAA-MM-DD). */
+  addedAt?: string;
+  /** Portada real (miniatura de la página 1 del PDF), si la tiene y es buena. */
+  coverImage?: string;
+  /** Qué tan buena/vistosa es la portada real (0–100). */
+  coverScore?: number;
 }
 
 export interface Book extends BookIndexEntry {

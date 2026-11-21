@@ -156,6 +156,148 @@ export function buildSlidingShelves(
   };
 }
 
+export interface LibraryShelfOptions {
+  /** Libros en la repisa "Recién llegados". */
+  newestCount: number;
+  /** Tamaño aproximado de cada repisa alfabética (se cortan por letra inicial del autor). */
+  sectionSize: number;
+  /** Libros por repisa cuando hay búsqueda o género. */
+  resultsPerRow: number;
+  /** Semilla del día: ordena "Recién llegados" y "Portadas destacadas" de forma estable en el día. */
+  daySeed: number;
+  /** Libros en la repisa de bienvenida "Portadas destacadas" (0 = sin esa repisa). */
+  featuredCount?: number;
+  /** Puntaje mínimo de portada real para la bienvenida (0–100). */
+  featuredMinScore?: number;
+}
+
+export interface LibraryShelfComputation extends SlidingShelfComputation {
+  /** Libros que están en alguna repisa (para "X libros en la biblioteca"). */
+  shown: number;
+  hasMore: boolean;
+}
+
+const AUTOR_DESCONOCIDO = 'Autor desconocido';
+
+function initialOf(name: string): string {
+  const letter = normalizeSearchText(name).replace(/[^a-z]/g, '').charAt(0).toUpperCase();
+  return letter || '#';
+}
+
+/** Barajado estable (mismo resultado para la misma semilla). */
+function seededShuffle<T>(items: readonly T[], seed: number): T[] {
+  const out = [...items];
+  let state = seed >>> 0 || 1;
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    const j = state % (i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+export function daySeedFor(date: Date): number {
+  return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+}
+
+/**
+ * Estante para la biblioteca grande: TODOS los libros quedan en alguna repisa.
+ * - Sin filtros: "Recién llegados" y luego repisas por autor, como en una biblioteca
+ *   ("Autores A – B", "C", …; ~sectionSize libros cada una) y al final "Autor desconocido".
+ * - Con búsqueda o género: los resultados, en repisas de resultsPerRow libros.
+ * Cada repisa se recorre de lado a lado; el componente dibuja solo los libros visibles.
+ */
+export function buildLibraryShelves(
+  books: readonly BookIndexEntry[],
+  filters: BookshelfFilterState,
+  options: LibraryShelfOptions,
+): LibraryShelfComputation {
+  const hasActiveFilter = isFilterActive(filters);
+  const filteredBooks = filterBooksForShelf(books, filters);
+  const { newestCount, sectionSize, resultsPerRow, daySeed, featuredCount = 0, featuredMinScore = 70 } = options;
+  const byAuthor = (a: BookIndexEntry, b: BookIndexEntry) =>
+    a.authorName.localeCompare(b.authorName, 'es') || a.title.localeCompare(b.title, 'es');
+
+  const groups: Array<{ label: string; books: BookIndexEntry[] }> = [];
+  if (hasActiveFilter) {
+    const ordered = [...filteredBooks].sort(byAuthor);
+    for (let start = 0; start < ordered.length; start += resultsPerRow) {
+      groups.push({
+        label: start === 0 ? 'Resultados' : 'Más resultados',
+        books: ordered.slice(start, start + resultsPerRow),
+      });
+    }
+  } else {
+    // Bienvenida: las portadas reales más vistosas; cada día 24 distintas entre las mejores.
+    const featured = featuredCount
+      ? seededShuffle(
+          filteredBooks
+            .filter((b) => (b.coverScore ?? 0) >= featuredMinScore)
+            .sort((a, b) => (b.coverScore ?? 0) - (a.coverScore ?? 0))
+            .slice(0, featuredCount * 3),
+          daySeed,
+        ).slice(0, featuredCount)
+      : [];
+    if (featured.length >= 6) groups.push({ label: 'Portadas destacadas', books: featured });
+    const featuredIds = new Set(featured.length >= 6 ? featured.map((b) => b.id) : []);
+
+    const newest = seededShuffle(
+      filteredBooks
+        .filter((b) => !featuredIds.has(b.id))
+        .sort((a, b) => (b.addedAt ?? '').localeCompare(a.addedAt ?? ''))
+        .slice(0, newestCount),
+      daySeed,
+    );
+    if (newest.length) groups.push({ label: 'Recién llegados', books: newest });
+
+    const known = filteredBooks.filter((b) => b.authorName !== AUTOR_DESCONOCIDO).sort(byAuthor);
+    const unknown = filteredBooks.filter((b) => b.authorName === AUTOR_DESCONOCIDO).sort(byAuthor);
+    let current: BookIndexEntry[] = [];
+    let first = '';
+    let last = '';
+    const flush = () => {
+      if (!current.length) return;
+      groups.push({ label: first === last ? `Autores ${first}` : `Autores ${first} – ${last}`, books: current });
+      current = [];
+    };
+    for (let i = 0; i < known.length; i += 1) {
+      const letter = initialOf(known[i].authorName);
+      if (!current.length) first = letter;
+      // Solo se corta al cambiar de letra, para no partir un autor entre repisas.
+      if (current.length >= sectionSize && letter !== last) {
+        flush();
+        first = letter;
+      }
+      current.push(known[i]);
+      last = letter;
+    }
+    flush();
+    if (unknown.length) groups.push({ label: AUTOR_DESCONOCIDO, books: unknown });
+  }
+
+  const tiltPattern = [-1.0, 0.4, -0.3, 0.9, -0.7, 0.3];
+  const rows: BookshelfRow[] = groups.map((group, rowIndex) => ({
+    index: rowIndex,
+    label: group.label,
+    matchCount: group.books.length,
+    slots: group.books.map((book, idxInRow) => ({
+      book,
+      isMatch: true,
+      heightPx: computeBookHeightPx(book.pageCount),
+      tiltDeg: tiltPattern[(rowIndex + idxInRow) % tiltPattern.length],
+    })),
+  }));
+
+  return {
+    rows,
+    filteredBooks,
+    totalMatches: filteredBooks.length,
+    hasActiveFilter,
+    shown: filteredBooks.length,
+    hasMore: false,
+  };
+}
+
 /**
  * Distribuye los libros en repisas arquitectónicas manteniendo compatibilidad
  * con utilidades previas de cálculo por bloques.
