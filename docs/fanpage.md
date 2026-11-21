@@ -40,6 +40,13 @@ Secretos de Cloudflare Pages (ya configurados):
 3. `node scripts/fanpage/conectar-token.mjs` → pegarlo cuando lo pida (no se ve). Debe decir
    `caduca: nunca · publicar: sí`. Luego volver a desplegar.
 
+## Modo de la app de Meta
+
+La app **Apuntes de Frank** debe estar en modo **Activo** (Live). En modo Desarrollo, Facebook solo
+muestra lo que publica la app a sus administradores y el público no ve las publicaciones.
+Para el modo Activo Meta pide la política de privacidad: https://leer-es-pensar.pages.dev/privacidad
+(`public/privacidad.html`, pública sin código).
+
 ## Opcional: resúmenes con IA en «adm»
 
 `GEMINI_API_KEY` (gratis en Google AI Studio) y `GEMINI_MODEL` (por defecto `gemini-2.5-flash`).
