@@ -2,7 +2,7 @@ import { SUMMARY_MAX, buildFanPageCaption, cleanShortText } from "../../src/util
 import type { SessionEnv } from "../_lib/auth";
 import { jsonResponse } from "../_lib/auth";
 import { readJson, verifyAdmin } from "../_lib/admin";
-import { aiReady, facebookReady, readQueue, writeQueue } from "../_lib/compartir";
+import { publicarEnFacebook, aiReady, facebookReady, readQueue, writeQueue } from "../_lib/compartir";
 
 interface AdminBody {
   codigo?: unknown;
@@ -40,20 +40,6 @@ async function sugerirResumen(env: SessionEnv, titulo: string, autor: string): P
 }
 
 /** Publica la tarjeta como foto en la fan page (Graph API). */
-async function publicarEnFacebook(env: SessionEnv, pngDataUrl: string, caption: string): Promise<string> {
-  const base64 = pngDataUrl.replace(/^data:image\/png;base64,/, "");
-  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-  if (bytes.length < 1000 || bytes.length > 8_000_000) throw new Error("La imagen no es válida.");
-  const form = new FormData();
-  form.append("source", new Blob([bytes], { type: "image/png" }), "leeresp.png");
-  form.append("caption", caption);
-  form.append("access_token", env.FB_PAGE_TOKEN ?? "");
-  const version = env.FB_GRAPH_VERSION || "v23.0";
-  const res = await fetch(`https://graph.facebook.com/${version}/${env.FB_PAGE_ID}/photos`, { method: "POST", body: form });
-  const data = (await res.json().catch(() => ({}))) as { post_id?: string; id?: string; error?: { message?: string } };
-  if (!res.ok) throw new Error(data.error?.message ?? `Facebook respondió ${res.status}`);
-  return data.post_id ?? data.id ?? "";
-}
 
 /**
  * Publicaciones de la fan page (solo Frank): listar pendientes, descartar, sugerir resumen,

@@ -1,9 +1,9 @@
-import { COMMENT_MAX, cleanShortText } from "../../src/utils/fanPage";
+import { COMMENT_MAX, buildFanPageCaption, cleanShortText } from "../../src/utils/fanPage";
 import { formatGratitudeName } from "../../src/utils/gratitud";
 import type { SessionEnv } from "../_lib/auth";
 import { hasValidSession, jsonResponse } from "../_lib/auth";
 import { readJson } from "../_lib/admin";
-import { readQueue, writeQueue } from "../_lib/compartir";
+import { facebookReady, publicarEnFacebook, readQueue, writeQueue } from "../_lib/compartir";
 import { clientIp } from "../_lib/rateLimit";
 
 interface ShareBody {
@@ -13,14 +13,16 @@ interface ShareBody {
   nombre?: unknown;
   apellido?: unknown;
   comentario?: unknown;
+  imagen?: unknown;
 }
 
 const texto = (v: unknown, max: number) => (typeof v === "string" ? cleanShortText(v, max) : "");
 const POR_HORA = 5;
 
 /**
- * Un lector comparte que leyó un libro: queda pendiente para que Frank lo apruebe y
- * se publique en la fan page. Se guarda solo "Nombre + inicial". Máximo 5 por hora por IP.
+ * Un lector comparte que leyó un libro: si Facebook está conectado se publica al momento
+ * en la fan page (tarjeta con la portada + agradecimiento + cita); si no, queda pendiente
+ * en el panel «adm». Se guarda solo "Nombre + inicial". Máximo 5 por hora por IP.
  */
 export const onRequestPost: PagesFunction<SessionEnv> = async (context) => {
   const { request, env } = context;
@@ -61,6 +63,16 @@ export const onRequestPost: PagesFunction<SessionEnv> = async (context) => {
     comentario: texto(body.comentario, COMMENT_MAX),
     fecha: new Date().toISOString().slice(0, 10),
   };
+  const imagen = typeof body.imagen === "string" ? body.imagen.slice(0, 12_000_000) : "";
+  if (facebookReady(env) && imagen) {
+    try {
+      const postId = await publicarEnFacebook(env, imagen, buildFanPageCaption(post, ""));
+      return jsonResponse({ ok: true, nombre, publicado: true, postId });
+    } catch (e) {
+      // Si Facebook falla no se pierde: queda para publicarlo desde «adm».
+      console.error("fan page:", (e as Error).message);
+    }
+  }
   await writeQueue(env, [post, ...(await readQueue(env))]);
-  return jsonResponse({ ok: true, nombre });
+  return jsonResponse({ ok: true, nombre, publicado: false });
 };

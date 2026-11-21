@@ -22,3 +22,9 @@ test('el comentario no deja pasar enlaces, etiquetas ni saltos raros', () => {
   assert.equal(cleanShortText('Mírenlo <b>aquí</b> https://spam.com ya\n\nok', 100), 'Mírenlo aquí ya ok');
   assert.equal(cleanShortText('x'.repeat(500), 240).length, 240);
 });
+
+test('el texto agradece al lector y trae una cita clásica', () => {
+  const t = buildFanPageCaption({ titulo: 'Pedro Páramo', autor: 'Juan Rulfo', nombre: 'Rosa M.', comentario: '' }, '');
+  assert.match(t, /Gracias, Rosa, por regalarte el tiempo de leer y aprender/);
+  assert.match(t, /«[^»]+» — [A-ZÁÉÍÓÚ]/);
+});

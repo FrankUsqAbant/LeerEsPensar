@@ -15,8 +15,8 @@ con lámpara (claro/oscuro), estante de 1764 libros con sus portadas reales y de
 - **Ficha en doble página** que se abre desde el estante y descarga el PDF real.
 - **Lámpara** que cambia de día a noche y luz que sigue la hora local.
 - **Apoyo** con Yape y PayPal, y **muro de gratitud** que administra el autor.
-- **"Lo leí" en la fan page**: el lector comparte con un botón; el autor aprueba y se publica
-  con la portada, un resumen y su nombre.
+- **"Lo leí" en la fan page**: el lector toca un botón y se publica al momento
+  con la portada, su nombre, un agradecimiento y una cita sobre la lectura.
 
 ## Estructura
 

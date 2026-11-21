@@ -55,6 +55,16 @@ export function ShareBookModal({ book, open, onClose }: ShareBookModalProps) {
   const caption = useMemo(() => (book ? buildShareCaption(book, siteUrl()) : ''), [book]);
   const fan = useFanPageShare(book);
 
+  /** Tarjeta con "{lector} LO LEYÓ EN" para la fan page (JPEG, más liviana). */
+  const tarjetaDelLector = async (lector: string) => {
+    if (!book) return null;
+    await ensureShareCardFonts();
+    const canvas = document.createElement('canvas');
+    const portada = await loadShareImage(book.coverImage);
+    drawBookShareCard(canvas, book, window.location.host, { portada, lector });
+    return canvas.toDataURL('image/jpeg', 0.9);
+  };
+
   // Dibuja la tarjeta cuando se abre (con las fuentes de la página ya cargadas).
   useEffect(() => {
     if (!open || !book) return;
@@ -193,13 +203,13 @@ export function ShareBookModal({ book, open, onClose }: ShareBookModalProps) {
                 Cuéntale al grupo que lo leíste: se publica en la fan page con su portada y un resumen.
               </p>
 
-              {/* Opción principal: publicar en la fan page (Frank lo aprueba) */}
+              {/* Opción principal: publicar en la fan page (sale al momento si Facebook está conectado) */}
               <div className="mt-5 rounded-xl border border-[var(--room-line)] bg-[var(--room-field)]/70 p-4" data-testid="fanpage-share">
                 {fan.enviado ? (
                   <div role="status" className="text-sm">
                     <p className="font-serif italic text-lg text-[var(--room-ink)]">¡Gracias, {fan.enviado.split(' ')[0]}!</p>
                     <p className="mt-1 text-[var(--room-ink-soft)]">
-                      Tu lectura aparecerá pronto en la{' '}
+                      {fan.publicado ? 'Tu lectura ya está publicada en la' : 'Tu lectura aparecerá pronto en la'}{' '}
                       <a href={BRAND_CONFIG.facebookUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
                         fan page de LeerEsPensar
                       </a>
@@ -207,7 +217,7 @@ export function ShareBookModal({ book, open, onClose }: ShareBookModalProps) {
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={(e) => void fan.enviar(e)} className="space-y-2.5">
+                  <form onSubmit={(e) => void fan.enviar(e, tarjetaDelLector)} className="space-y-2.5">
                     <p className="text-sm font-medium text-[var(--room-ink)]">Publicar en la fan page</p>
                     <div className="grid grid-cols-2 gap-2">
                       <input value={fan.nombre} onChange={(e) => fan.setNombre(e.target.value)} placeholder="Tu nombre" aria-label="Tu nombre" className={campoFan} />
