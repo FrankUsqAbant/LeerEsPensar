@@ -275,14 +275,7 @@ export function BotanicalBookshelfHero({
   const shelfData = useMemo(
     () =>
       isLibrary
-        ? buildLibraryShelves(books, { search, genre, authorId }, {
-            newestCount: 24,
-            sectionSize: 150,
-            resultsPerRow: 40,
-            daySeed,
-            featuredCount: 24,
-            featuredMinScore: 70,
-          })
+        ? buildLibraryShelves(books, { search, genre, authorId }, { daySeed, featuredCount: 24, featuredMinScore: 70 })
         : { ...buildSlidingShelves(books, { search, genre, authorId }), shown: 0, hasMore: false },
     [books, isLibrary, search, genre, authorId, daySeed],
   );
