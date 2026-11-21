@@ -78,7 +78,7 @@ export function AdminFanPagePanel({ codigo, onCount }: { codigo: string; onCount
       if (cancelado) return;
       const canvas = canvasRef.current ?? document.createElement('canvas');
       canvasRef.current = canvas;
-      drawBookShareCard(canvas, libroDe(post), window.location.host, { lector: post.nombre, texto: resumen, portada });
+      drawBookShareCard(canvas, libroDe(post), window.location.host, { lector: post.nombre, texto: resumen, comentario: post.comentario, portada });
       setVista(canvas.toDataURL('image/png'));
     }, 300);
     return () => {

@@ -1,5 +1,6 @@
 import { BRAND_CONFIG } from '../config/brand';
 import type { BookIndexEntry } from '../types/folio';
+import { readingQuoteFor } from './fanPage';
 import { sanitizePlainText } from './sanitization';
 
 /** Formato vertical 4:5: el que más espacio ocupa en el muro de Facebook (y sirve en Instagram). */
@@ -71,6 +72,8 @@ export interface ShareCardOptions {
   lector?: string;
   /** Resumen corto: reemplaza la frase de apertura. */
   texto?: string;
+  /** Lo que el lector dijo del libro: va en grande bajo su nombre. */
+  comentario?: string;
   /** Portada real ya cargada: se dibuja sobre la tapa en lugar del diseño generado. */
   portada?: CanvasImageSource | null;
 }
@@ -133,82 +136,27 @@ export function drawBookShareCard(
   ctx.arc(W / 2, 128, 40, 0, Math.PI * 2);
   ctx.fill();
 
+  // Tarjeta del lector: su nombre y su comentario (o una cita) son lo principal.
+  if (options.lector) {
+    drawReaderCard(ctx, book, siteHost, options);
+    return;
+  }
+
   // Encabezado: "Lo leí en LeerEsPensar"
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = INK_SOFT;
   ctx.font = `600 22px ${SANS}`;
   ctx.letterSpacing = '6px';
-  ctx.fillText(options.lector ? `${options.lector.toLocaleUpperCase('es')} LO LEYÓ EN` : 'LO LEÍ EN', W / 2, 228);
+  ctx.fillText('LO LEÍ EN', W / 2, 228);
   ctx.letterSpacing = '0px';
   drawBrand(ctx, W / 2, 290, 58);
 
-  // Portada del libro (con lomo, sombra y canto de páginas)
   const coverW = 380;
   const coverH = 506;
   const coverX = (W - coverW) / 2;
   const coverY = 350;
-  const theme = book.coverTheme;
-  ctx.save();
-  ctx.shadowColor = 'rgba(40, 26, 10, 0.38)';
-  ctx.shadowBlur = 46;
-  ctx.shadowOffsetY = 26;
-  roundedRect(ctx, coverX, coverY, coverW, coverH, 10);
-  ctx.fillStyle = theme.paperTint;
-  ctx.fill();
-  ctx.restore();
-  ctx.save();
-  roundedRect(ctx, coverX, coverY, coverW, coverH, 10);
-  ctx.clip();
-  ctx.fillStyle = theme.spineColor;
-  ctx.fillRect(coverX, coverY, 26, coverH);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.10)';
-  ctx.fillRect(coverX + 26, coverY, 3, coverH);
-  ctx.restore();
-
-  if (options.portada) {
-    // Portada real a la derecha del lomo, recortada para llenar la tapa sin deformarse.
-    const img = options.portada as HTMLImageElement;
-    const areaX = coverX + 29;
-    const areaW = coverW - 29;
-    const escala = Math.max(areaW / img.width, coverH / img.height);
-    const sw = areaW / escala;
-    const sh = coverH / escala;
-    ctx.save();
-    roundedRect(ctx, coverX, coverY, coverW, coverH, 10);
-    ctx.clip();
-    ctx.drawImage(img, (img.width - sw) / 2, 0, sw, sh, areaX, coverY, areaW, coverH);
-    const brillo = ctx.createLinearGradient(areaX, 0, areaX + 40, 0);
-    brillo.addColorStop(0, 'rgba(0, 0, 0, 0.28)');
-    brillo.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = brillo;
-    ctx.fillRect(areaX, coverY, 40, coverH);
-    ctx.restore();
-  }
-
-  const innerX = coverX + 58;
-  const innerW = coverW - 92;
-  ctx.textAlign = 'left';
-  if (!options.portada) {
-  ctx.fillStyle = theme.secondaryTextColor ?? INK_SOFT;
-  ctx.font = `500 21px ${SANS}`;
-  if (book.genre !== 'Sin clasificar') ctx.fillText(book.genre, innerX, coverY + 62);
-  ctx.fillStyle = theme.inkColor;
-  ctx.font = `500 48px ${SERIF}`;
-  const titleLines = wrapLines(ctx, book.title, innerW, 4);
-  titleLines.forEach((line, i) => ctx.fillText(line, innerX, coverY + 140 + i * 56));
-  ctx.fillStyle = theme.accentColor;
-  ctx.fillRect(innerX, coverY + coverH - 140, 54, 2);
-  ctx.font = `600 24px ${SANS}`;
-  wrapLines(ctx, book.authorName, innerW, 2).forEach((line, i) =>
-    ctx.fillText(line, innerX, coverY + coverH - 100 + i * 30),
-  );
-  ctx.fillStyle = theme.secondaryTextColor ?? INK_SOFT;
-  ctx.font = `500 19px ${SANS}`;
-  if (book.publicationYear) ctx.fillText(String(book.publicationYear), innerX, coverY + coverH - 34);
-  ctx.textAlign = 'right';
-  ctx.fillText(`${book.pageCount} págs.`, coverX + coverW - 34, coverY + coverH - 34);
-  }
+  drawCover(ctx, book, coverX, coverY, coverW, coverH, options.portada);
 
   // Frase de apertura del libro
   ctx.textAlign = 'center';
@@ -288,4 +236,150 @@ export function shareCardFileName(book: BookIndexEntry): string {
 
 export function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
   return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), 'image/png'));
+}
+
+/** Portada del libro con lomo, sombra y, si hay, la portada real. */
+function drawCover(
+  ctx: CanvasRenderingContext2D,
+  book: BookIndexEntry,
+  coverX: number,
+  coverY: number,
+  coverW: number,
+  coverH: number,
+  portada: CanvasImageSource | null | undefined,
+) {
+  const theme = book.coverTheme;
+  ctx.save();
+  ctx.shadowColor = 'rgba(40, 26, 10, 0.38)';
+  ctx.shadowBlur = 46;
+  ctx.shadowOffsetY = 26;
+  roundedRect(ctx, coverX, coverY, coverW, coverH, 10);
+  ctx.fillStyle = theme.paperTint;
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  roundedRect(ctx, coverX, coverY, coverW, coverH, 10);
+  ctx.clip();
+  ctx.fillStyle = theme.spineColor;
+  ctx.fillRect(coverX, coverY, 26, coverH);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.10)';
+  ctx.fillRect(coverX + 26, coverY, 3, coverH);
+  ctx.restore();
+
+  if (portada) {
+    // Portada real a la derecha del lomo, recortada para llenar la tapa sin deformarse.
+    const img = portada as HTMLImageElement;
+    const areaX = coverX + 29;
+    const areaW = coverW - 29;
+    const escala = Math.max(areaW / img.width, coverH / img.height);
+    const sw = areaW / escala;
+    const sh = coverH / escala;
+    ctx.save();
+    roundedRect(ctx, coverX, coverY, coverW, coverH, 10);
+    ctx.clip();
+    ctx.drawImage(img, (img.width - sw) / 2, 0, sw, sh, areaX, coverY, areaW, coverH);
+    const brillo = ctx.createLinearGradient(areaX, 0, areaX + 40, 0);
+    brillo.addColorStop(0, 'rgba(0, 0, 0, 0.28)');
+    brillo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = brillo;
+    ctx.fillRect(areaX, coverY, 40, coverH);
+    ctx.restore();
+  }
+
+  const innerX = coverX + 58;
+  const innerW = coverW - 92;
+  ctx.textAlign = 'left';
+  if (!portada) {
+  ctx.fillStyle = theme.secondaryTextColor ?? INK_SOFT;
+  ctx.font = `500 21px ${SANS}`;
+  if (book.genre !== 'Sin clasificar') ctx.fillText(book.genre, innerX, coverY + 62);
+  ctx.fillStyle = theme.inkColor;
+  ctx.font = `500 48px ${SERIF}`;
+  const titleLines = wrapLines(ctx, book.title, innerW, 4);
+  titleLines.forEach((line, i) => ctx.fillText(line, innerX, coverY + 140 + i * 56));
+  ctx.fillStyle = theme.accentColor;
+  ctx.fillRect(innerX, coverY + coverH - 140, 54, 2);
+  ctx.font = `600 24px ${SANS}`;
+  wrapLines(ctx, book.authorName, innerW, 2).forEach((line, i) =>
+    ctx.fillText(line, innerX, coverY + coverH - 100 + i * 30),
+  );
+  ctx.fillStyle = theme.secondaryTextColor ?? INK_SOFT;
+  ctx.font = `500 19px ${SANS}`;
+  if (book.publicationYear) ctx.fillText(String(book.publicationYear), innerX, coverY + coverH - 34);
+  ctx.textAlign = 'right';
+  ctx.fillText(`${book.pageCount} págs.`, coverX + coverW - 34, coverY + coverH - 34);
+  }
+}
+
+/**
+ * Tarjeta "{lector} lo leyó": portada arriba, el nombre del lector grande en el centro
+ * y debajo su comentario (o una cita clásica). Lo importante queda dentro del cuadrado
+ * central (y 135–1215) para que Facebook no lo recorte en ninguna vista.
+ */
+function drawReaderCard(
+  ctx: CanvasRenderingContext2D,
+  book: BookIndexEntry,
+  siteHost: string,
+  options: ShareCardOptions,
+) {
+  const W = SHARE_CARD_WIDTH;
+  const H = SHARE_CARD_HEIGHT;
+  const lector = sanitizePlainText(options.lector ?? '', 40);
+
+  const coverW = 384;
+  const coverH = 512;
+  const coverY = 160;
+  drawCover(ctx, book, (W - coverW) / 2, coverY, coverW, coverH, options.portada);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = INK_SOFT;
+  ctx.font = `500 24px ${SANS}`;
+  const ficha = book.authorName && book.authorName !== 'Autor desconocido' ? `${book.title} · ${book.authorName}` : book.title;
+  ctx.fillText(wrapLines(ctx, ficha, W - 220, 1)[0] ?? '', W / 2, coverY + coverH + 62);
+
+  // "Frank A. lo leyó"
+  const nombreFont = `500 68px ${SERIF}`;
+  const lFont = `italic 400 48px ${SERIF}`;
+  ctx.font = nombreFont;
+  const wNombre = ctx.measureText(lector).width;
+  ctx.font = lFont;
+  const wLeyo = ctx.measureText(' lo leyó').width;
+  let x = W / 2 - (wNombre + wLeyo) / 2;
+  const yNombre = coverY + coverH + 160;
+  ctx.textAlign = 'left';
+  ctx.font = nombreFont;
+  ctx.fillStyle = INK;
+  ctx.fillText(lector, x, yNombre);
+  x += wNombre;
+  ctx.font = lFont;
+  ctx.fillStyle = ACCENT;
+  ctx.fillText(' lo leyó', x, yNombre);
+  ctx.textAlign = 'center';
+
+  // Su comentario; si no escribió nada, una cita clásica sobre la lectura.
+  const comentario = sanitizePlainText(options.comentario ?? '', 240) || sanitizePlainText(options.texto ?? '', 240);
+  const [cita, autorCita] = readingQuoteFor(`${book.title}|${lector}`);
+  const frase = comentario || cita;
+  const firma = comentario ? "" : `— ${autorCita}`;
+  ctx.fillStyle = 'rgba(43, 42, 38, 0.18)';
+  ctx.fillRect(W / 2 - 28, yNombre + 42, 56, 2);
+  ctx.fillStyle = INK;
+  ctx.font = `italic 400 36px ${SERIF}`;
+  const lineas = wrapLines(ctx, `«${frase}»`, W - 240, 3);
+  const top = yNombre + 112;
+  lineas.forEach((linea, i) => ctx.fillText(linea, W / 2, top + i * 50));
+  ctx.fillStyle = INK_SOFT;
+  ctx.font = `500 23px ${SANS}`;
+  if (firma) ctx.fillText(firma, W / 2, top + lineas.length * 50 + 16);
+
+  // Marca dentro de la zona segura y dirección al pie.
+  drawBrand(ctx, W / 2, 1180, 46);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = INK_SOFT;
+  ctx.font = `500 22px ${SANS}`;
+  ctx.fillText('Clásicos para descargar en PDF, gratis', W / 2, H - 92);
+  ctx.fillStyle = ACCENT;
+  ctx.font = `600 22px ${SANS}`;
+  ctx.fillText(siteHost, W / 2, H - 56);
 }

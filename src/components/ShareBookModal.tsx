@@ -61,7 +61,7 @@ export function ShareBookModal({ book, open, onClose }: ShareBookModalProps) {
     await ensureShareCardFonts();
     const canvas = document.createElement('canvas');
     const portada = await loadShareImage(book.coverImage);
-    drawBookShareCard(canvas, book, window.location.host, { portada, lector });
+    drawBookShareCard(canvas, book, window.location.host, { portada, lector, comentario: fan.comentario });
     return canvas.toDataURL('image/jpeg', 0.9);
   };
 
