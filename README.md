@@ -24,8 +24,9 @@ con lámpara (claro/oscuro), estante de 1764 libros con sus portadas reales y de
 src/                 Aplicación (React + Vite + Tailwind)
 functions/           Cloudflare Pages Functions: acceso, catálogo, PDFs, portadas, gratitud, fan page
 public/              Archivos estáticos (cabeceras, QR, texturas, favicon)
-scripts/biblioteca/  Herramientas para inventariar, catalogar y subir los PDFs a R2
-docs/                Guía de la biblioteca e imagen del README
+scripts/biblioteca/  Inventariar, catalogar y subir los PDFs a R2
+scripts/fanpage/     Conectar la fan page de Facebook (guarda la llave sin mostrarla)
+docs/                Guías (biblioteca, fan page) e imagen del README
 ```
 
 ## Uso
@@ -37,4 +38,8 @@ npm test         # pruebas
 npm run build && npx wrangler pages deploy --branch main
 ```
 
-Los libros viven en Cloudflare R2 (privado). Cómo agregarlos: [docs/biblioteca.md](docs/biblioteca.md).
+Secretos en Cloudflare Pages (no van en el repositorio): `ACCESS_CODE`, `ADMIN_CODE`, `SESSION_SECRET`
+y los de Facebook. Modelo local: [.dev.vars.example](.dev.vars.example).
+
+- Libros (Cloudflare R2, privado) y cómo agregarlos: [docs/biblioteca.md](docs/biblioteca.md)
+- Fan page y cómo renovar la llave: [docs/fanpage.md](docs/fanpage.md)

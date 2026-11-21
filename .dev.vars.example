@@ -1,6 +1,16 @@
 # Copia este archivo a .dev.vars para el entorno local de Wrangler.
-# Estos valores son falsos y no sirven en producción.
+# Estos valores son falsos y no sirven en producción (allí son secretos de Cloudflare Pages).
 
 ACCESS_CODE=cambia-esto
+ADMIN_CODE=cambia-esto
 SESSION_SECRET=cambia-esto-por-32-bytes-aleatorios
 SESSION_VERSION=1
+
+# Opcional: fan page (ver docs/fanpage.md)
+# FB_PAGE_ID=
+# FB_PAGE_TOKEN=
+# FB_GRAPH_VERSION=v27.0
+
+# Opcional: resúmenes con IA en «adm»
+# GEMINI_API_KEY=
+# GEMINI_MODEL=gemini-2.5-flash

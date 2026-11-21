@@ -2,7 +2,7 @@
  * Conecta la fan page al sitio sin mostrar la llave en pantalla.
  *
  * 1. Copia el token de USUARIO ampliado del Depurador de tokens de Meta.
- * 2. Ejecuta: node scripts/fanpage-token.mjs y pégalo cuando lo pida (no se ve).
+ * 2. Ejecuta: node scripts/fanpage/conectar-token.mjs y pégalo cuando lo pida (no se ve).
  *
  * Pide a Facebook la llave de la página "Leer es Pensar"
  * (con un token de usuario ampliado, la llave de la página no caduca), comprueba
@@ -10,7 +10,7 @@
  * Al terminar vacía el portapapeles. Nunca imprime la llave.
  */
 import { execFileSync, spawn } from 'node:child_process';
-import { buscarWrangler, REPO } from './biblioteca/wrangler.mjs';
+import { buscarWrangler, REPO } from '../biblioteca/wrangler.mjs';
 
 const PAGE_ID = '100938055347228';
 const VERSION = 'v27.0';

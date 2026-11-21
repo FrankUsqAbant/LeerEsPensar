@@ -109,16 +109,9 @@ node scripts/biblioteca/publicar-catalogo.mjs --subir
 - Cambiar el código de administrador: `npx wrangler pages secret put ADMIN_CODE --project-name leer-es-pensar`.
 - En desarrollo el muro vive en memoria y el código de prueba es `dev`.
 
-## Fan page: "lo leí"
+## Fan page
 
-- El lector, en la ficha → Compartir → **Publicar que lo leí** (nombre, apellido y comentario opcional).
-  Queda pendiente; se guarda solo "Nombre + inicial". Máximo 5 por hora por IP.
-- Frank, en «adm» → **Publicaciones**: ve la tarjeta (portada real + resumen + "María G. lo leyó"),
-  escribe o pide a la IA un resumen y publica. Sin Facebook conectado: descargar tarjeta + copiar texto.
-- Funciones: `/api/compartir` (lector) y `/api/compartir-admin` (con `ADMIN_CODE`).
-- Opcional, para publicar solo y sugerir resúmenes (secretos de Cloudflare Pages):
-  - `FB_PAGE_ID`, `FB_PAGE_TOKEN` (token de la página con `pages_manage_posts`), `FB_GRAPH_VERSION` (por defecto `v23.0`).
-  - `GEMINI_API_KEY` (gratis en Google AI Studio) y `GEMINI_MODEL` (por defecto `gemini-2.5-flash`).
+Ver [fanpage.md](fanpage.md).
 
 ## Compresión: se suben los originales
 
