@@ -5,6 +5,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { adminGratitud } from '../data/gratitud';
 import type { GratitudeEntry } from '../utils/gratitud';
 import { formatGratitudeName } from '../utils/gratitud';
+import { AdminFanPagePanel } from './AdminFanPagePanel';
+import { adminCompartir } from '../data/fanPage';
 
 export interface AdminGratitudModalProps {
   open: boolean;
@@ -29,6 +31,8 @@ export function AdminGratitudModal({ open, onClose, muro, onMuroChange }: AdminG
   const [apellido, setApellido] = useState('');
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [pestana, setPestana] = useState<'muro' | 'publicaciones'>('muro');
+  const [pendientesFb, setPendientesFb] = useState(0);
   const primerCampo = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -38,6 +42,7 @@ export function AdminGratitudModal({ open, onClose, muro, onMuroChange }: AdminG
       setNombre('');
       setApellido('');
       setMensaje(null);
+      setPestana('muro');
       return;
     }
     primerCampo.current?.focus();
@@ -61,6 +66,7 @@ export function AdminGratitudModal({ open, onClose, muro, onMuroChange }: AdminG
       setVerificado(true);
       setMensaje(null);
       if (r.muro) onMuroChange(r.muro);
+      void adminCompartir(codigo, { accion: 'listar' }).then((x) => setPendientesFb(x.pendientes?.length ?? 0));
     } else {
       setMensaje({ tipo: 'error', texto: r.error ?? 'Código incorrecto.' });
     }
@@ -119,7 +125,7 @@ export function AdminGratitudModal({ open, onClose, muro, onMuroChange }: AdminG
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: EASE }}
-            className="relative w-full max-w-md my-auto rounded-2xl bg-[var(--room-page)] text-[var(--room-ink)] border border-[var(--room-line)] shadow-[0_40px_80px_-30px_rgba(20,12,4,0.55)] p-6 sm:p-7"
+            className="relative w-full max-w-lg my-auto rounded-2xl bg-[var(--room-page)] text-[var(--room-ink)] border border-[var(--room-line)] shadow-[0_40px_80px_-30px_rgba(20,12,4,0.55)] p-6 sm:p-7"
           >
             <button
               type="button"
@@ -157,6 +163,33 @@ export function AdminGratitudModal({ open, onClose, muro, onMuroChange }: AdminG
               </form>
             ) : (
               <div className="space-y-5">
+                {/* Pestañas del panel: muro de gratitud y publicaciones de la fan page */}
+                <div role="tablist" aria-label="Secciones del panel" className="flex gap-1 pr-8">
+                  {([
+                    ['muro', 'Muro de gratitud'],
+                    ['publicaciones', `Publicaciones${pendientesFb ? ` (${pendientesFb})` : ''}`],
+                  ] as const).map(([id, etiqueta]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      role="tab"
+                      aria-selected={pestana === id}
+                      onClick={() => setPestana(id)}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+                        pestana === id
+                          ? 'bg-[var(--room-ink)] text-[var(--room-page)] border-transparent'
+                          : 'border-[var(--room-line)] text-[var(--room-ink-soft)] hover:text-[var(--room-ink)]'
+                      }`}
+                    >
+                      {etiqueta}
+                    </button>
+                  ))}
+                </div>
+
+                {pestana === 'publicaciones' ? (
+                  <AdminFanPagePanel codigo={codigo} onCount={setPendientesFb} />
+                ) : (
+                <div className="space-y-5">
                 <div>
                   <Heart className="w-5 h-5 text-[var(--room-accent)]" aria-hidden="true" />
                   <h2 id="admin-gratitud-titulo" className="mt-2 font-serif text-2xl">Registrar un aporte</h2>
@@ -236,6 +269,8 @@ export function AdminGratitudModal({ open, onClose, muro, onMuroChange }: AdminG
                     {muro.length === 0 && <li className="py-2 text-xs text-[var(--room-ink-soft)]">Aún no hay nombres.</li>}
                   </ul>
                 </div>
+              </div>
+                )}
               </div>
             )}
           </motion.div>

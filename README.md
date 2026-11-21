@@ -5,20 +5,24 @@
 # LeerEsPensar
 
 Biblioteca privada de clásicos literarios para descargar en PDF, gratis. Una sala de lectura
-con lámpara (claro/oscuro), estante de más de 1700 libros con sus portadas reales y descarga
-directa. → **[leer-es-pensar.pages.dev](https://leer-es-pensar.pages.dev)** (acceso con código del grupo)
+con lámpara (claro/oscuro), estante de 1764 libros con sus portadas reales y descarga directa.
 
-- **Estante por autor** con bienvenida de portadas destacadas, búsqueda y desplazamiento suave.
+→ **[leer-es-pensar.pages.dev](https://leer-es-pensar.pages.dev)** (acceso con código del grupo) ·
+**[Fan page](https://www.facebook.com/LeerPensar)** · leyendoparapensar@gmail.com
+
+- **Estante en dos repisas**: portadas destacadas y toda la biblioteca de la A a la Z, con búsqueda
+  y desplazamiento suave.
 - **Ficha en doble página** que se abre desde el estante y descarga el PDF real.
 - **Lámpara** que cambia de día a noche y luz que sigue la hora local.
 - **Apoyo** con Yape y PayPal, y **muro de gratitud** que administra el autor.
-- **Compartir** cada libro en Facebook con una tarjeta lista.
+- **"Lo leí" en la fan page**: el lector comparte con un botón; el autor aprueba y se publica
+  con la portada, un resumen y su nombre.
 
 ## Estructura
 
 ```
 src/                 Aplicación (React + Vite + Tailwind)
-functions/           Cloudflare Pages Functions: acceso, catálogo, PDFs, portadas, gratitud
+functions/           Cloudflare Pages Functions: acceso, catálogo, PDFs, portadas, gratitud, fan page
 public/              Archivos estáticos (cabeceras, QR, texturas, favicon)
 scripts/biblioteca/  Herramientas para inventariar, catalogar y subir los PDFs a R2
 docs/                Guía de la biblioteca e imagen del README

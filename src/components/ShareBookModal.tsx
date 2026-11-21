@@ -2,10 +2,17 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Copy, Download, Share2, X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { BookIndexEntry } from '../types/folio';
+import { BRAND_CONFIG } from '../config/brand';
+import { COMMENT_MAX } from '../utils/fanPage';
+import { useFanPageShare } from '../data/fanPage';
+
+const campoFan =
+  'w-full px-3 py-2 text-sm rounded-lg bg-[var(--room-page)] text-[var(--room-ink)] placeholder:text-[var(--room-ink-soft)] border border-[var(--room-line)] focus:outline-none focus:ring-2 focus:ring-[var(--room-accent)]/40';
 import {
   buildShareCaption,
   canvasToPngBlob,
   drawBookShareCard,
+  loadShareImage,
   ensureShareCardFonts,
   shareCardFileName,
 } from '../utils/bookShareCard';
@@ -46,6 +53,7 @@ export function ShareBookModal({ book, open, onClose }: ShareBookModalProps) {
   const [canShareFiles, setCanShareFiles] = useState(false);
 
   const caption = useMemo(() => (book ? buildShareCaption(book, siteUrl()) : ''), [book]);
+  const fan = useFanPageShare(book);
 
   // Dibuja la tarjeta cuando se abre (con las fuentes de la página ya cargadas).
   useEffect(() => {
@@ -58,7 +66,9 @@ export function ShareBookModal({ book, open, onClose }: ShareBookModalProps) {
       await ensureShareCardFonts();
       const canvas = canvasRef.current ?? document.createElement('canvas');
       canvasRef.current = canvas;
-      drawBookShareCard(canvas, book, window.location.host);
+      const portada = await loadShareImage(book.coverImage);
+      if (cancelled) return;
+      drawBookShareCard(canvas, book, window.location.host, { portada });
       if (cancelled) return;
       setPreviewUrl(canvas.toDataURL('image/png'));
       const blob = await canvasToPngBlob(canvas);
@@ -180,10 +190,58 @@ export function ShareBookModal({ book, open, onClose }: ShareBookModalProps) {
                 {book.title}
               </h2>
               <p className="mt-2 text-sm text-[var(--room-ink-soft)] leading-relaxed">
-                Una tarjeta lista para tu muro o la fan page de Facebook, con su frase de apertura.
+                Cuéntale al grupo que lo leíste: se publica en la fan page con su portada y un resumen.
               </p>
 
-              <div className="mt-6 space-y-2.5">
+              {/* Opción principal: publicar en la fan page (Frank lo aprueba) */}
+              <div className="mt-5 rounded-xl border border-[var(--room-line)] bg-[var(--room-field)]/70 p-4" data-testid="fanpage-share">
+                {fan.enviado ? (
+                  <div role="status" className="text-sm">
+                    <p className="font-serif italic text-lg text-[var(--room-ink)]">¡Gracias, {fan.enviado.split(' ')[0]}!</p>
+                    <p className="mt-1 text-[var(--room-ink-soft)]">
+                      Tu lectura aparecerá pronto en la{' '}
+                      <a href={BRAND_CONFIG.facebookUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                        fan page de LeerEsPensar
+                      </a>
+                      .
+                    </p>
+                  </div>
+                ) : (
+                  <form onSubmit={(e) => void fan.enviar(e)} className="space-y-2.5">
+                    <p className="text-sm font-medium text-[var(--room-ink)]">Publicar en la fan page</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input value={fan.nombre} onChange={(e) => fan.setNombre(e.target.value)} placeholder="Tu nombre" aria-label="Tu nombre" className={campoFan} />
+                      <input value={fan.apellido} onChange={(e) => fan.setApellido(e.target.value)} placeholder="Tu apellido" aria-label="Tu apellido" className={campoFan} />
+                    </div>
+                    <input
+                      value={fan.comentario}
+                      onChange={(e) => fan.setComentario(e.target.value)}
+                      maxLength={COMMENT_MAX}
+                      placeholder="¿Qué te pareció? (opcional)"
+                      aria-label="Qué te pareció (opcional)"
+                      className={campoFan}
+                    />
+                    <p className="text-xs text-[var(--room-ink-soft)]">
+                      Aparecerás como <span className="font-serif italic text-[var(--room-ink)]">{fan.vistaPrevia ?? '—'}</span>
+                    </p>
+                    {fan.error && <p role="alert" className="text-xs text-red-600 dark:text-red-400">{fan.error}</p>}
+                    <button
+                      type="submit"
+                      disabled={fan.enviando}
+                      data-testid="fanpage-send"
+                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#1877F2] text-white text-sm font-medium hover:bg-[#166FE5] disabled:opacity-60 transition-colors"
+                    >
+                      {fan.enviando ? 'Enviando…' : 'Publicar que lo leí'}
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              <p className="mt-5 text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--room-ink-soft)]">
+                O compártelo tú
+              </p>
+
+              <div className="mt-2 space-y-2.5">
                 {canShareFiles && (
                   <button
                     type="button"

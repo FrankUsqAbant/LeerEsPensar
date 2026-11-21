@@ -66,7 +66,32 @@ export async function ensureShareCardFonts(): Promise<void> {
  * Dibuja la tarjeta: sala con lámpara, portada del libro, su frase de apertura y la marca.
  * Colores fijos de papel (no dependen del modo noche) para que se vea igual en cualquier muro.
  */
-export function drawBookShareCard(canvas: HTMLCanvasElement, book: BookIndexEntry, siteHost: string): void {
+export interface ShareCardOptions {
+  /** "María G.": la tarjeta dice "MARÍA G. LO LEYÓ EN" en vez de "LO LEÍ EN". */
+  lector?: string;
+  /** Resumen corto: reemplaza la frase de apertura. */
+  texto?: string;
+  /** Portada real ya cargada: se dibuja sobre la tapa en lugar del diseño generado. */
+  portada?: CanvasImageSource | null;
+}
+
+/** Carga una imagen (misma web) para dibujarla en la tarjeta; null si no se puede. */
+export function loadShareImage(url: string | undefined): Promise<HTMLImageElement | null> {
+  if (!url || typeof Image === 'undefined') return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+export function drawBookShareCard(
+  canvas: HTMLCanvasElement,
+  book: BookIndexEntry,
+  siteHost: string,
+  options: ShareCardOptions = {},
+): void {
   const W = SHARE_CARD_WIDTH;
   const H = SHARE_CARD_HEIGHT;
   canvas.width = W;
@@ -114,7 +139,7 @@ export function drawBookShareCard(canvas: HTMLCanvasElement, book: BookIndexEntr
   ctx.fillStyle = INK_SOFT;
   ctx.font = `600 22px ${SANS}`;
   ctx.letterSpacing = '6px';
-  ctx.fillText('LO LEÍ EN', W / 2, 228);
+  ctx.fillText(options.lector ? `${options.lector.toLocaleUpperCase('es')} LO LEYÓ EN` : 'LO LEÍ EN', W / 2, 228);
   ctx.letterSpacing = '0px';
   drawBrand(ctx, W / 2, 290, 58);
 
@@ -141,9 +166,30 @@ export function drawBookShareCard(canvas: HTMLCanvasElement, book: BookIndexEntr
   ctx.fillRect(coverX + 26, coverY, 3, coverH);
   ctx.restore();
 
+  if (options.portada) {
+    // Portada real a la derecha del lomo, recortada para llenar la tapa sin deformarse.
+    const img = options.portada as HTMLImageElement;
+    const areaX = coverX + 29;
+    const areaW = coverW - 29;
+    const escala = Math.max(areaW / img.width, coverH / img.height);
+    const sw = areaW / escala;
+    const sh = coverH / escala;
+    ctx.save();
+    roundedRect(ctx, coverX, coverY, coverW, coverH, 10);
+    ctx.clip();
+    ctx.drawImage(img, (img.width - sw) / 2, 0, sw, sh, areaX, coverY, areaW, coverH);
+    const brillo = ctx.createLinearGradient(areaX, 0, areaX + 40, 0);
+    brillo.addColorStop(0, 'rgba(0, 0, 0, 0.28)');
+    brillo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = brillo;
+    ctx.fillRect(areaX, coverY, 40, coverH);
+    ctx.restore();
+  }
+
   const innerX = coverX + 58;
   const innerW = coverW - 92;
   ctx.textAlign = 'left';
+  if (!options.portada) {
   ctx.fillStyle = theme.secondaryTextColor ?? INK_SOFT;
   ctx.font = `500 21px ${SANS}`;
   if (book.genre !== 'Sin clasificar') ctx.fillText(book.genre, innerX, coverY + 62);
@@ -162,19 +208,22 @@ export function drawBookShareCard(canvas: HTMLCanvasElement, book: BookIndexEntr
   if (book.publicationYear) ctx.fillText(String(book.publicationYear), innerX, coverY + coverH - 34);
   ctx.textAlign = 'right';
   ctx.fillText(`${book.pageCount} págs.`, coverX + coverW - 34, coverY + coverH - 34);
+  }
 
   // Frase de apertura del libro
   ctx.textAlign = 'center';
   ctx.fillStyle = INK;
-  ctx.font = `italic 400 38px ${SERIF}`;
+  const resumen = options.texto ? sanitizePlainText(options.texto, 420) : '';
+  ctx.font = resumen ? `italic 400 33px ${SERIF}` : `italic 400 38px ${SERIF}`;
   const quote = sanitizePlainText(book.firstSip, 400);
-  const quoteText = quote ? `«${quote}»` : `Un libro de ${book.authorName} que vale la pena leer.`;
-  const quoteLines = wrapLines(ctx, quoteText, W - 220, 3);
+  const quoteText = resumen || (quote ? `«${quote}»` : `Un libro de ${book.authorName} que vale la pena leer.`);
+  const quoteLines = wrapLines(ctx, quoteText, W - 200, resumen ? 4 : 3);
   const quoteTop = coverY + coverH + 112;
-  quoteLines.forEach((line, i) => ctx.fillText(line, W / 2, quoteTop + i * 52));
+  const interlinea = resumen ? 46 : 52;
+  quoteLines.forEach((line, i) => ctx.fillText(line, W / 2, quoteTop + i * interlinea));
   ctx.fillStyle = INK_SOFT;
   ctx.font = `500 23px ${SANS}`;
-  ctx.fillText(`${book.title} · ${book.authorName}`, W / 2, quoteTop + quoteLines.length * 52 + 22);
+  ctx.fillText(`${book.title} · ${book.authorName}`, W / 2, quoteTop + quoteLines.length * interlinea + 22);
 
   // Pie: invitación y dirección
   ctx.strokeStyle = 'rgba(43, 42, 38, 0.14)';

@@ -130,6 +130,16 @@ export function Phase1FoundationView(_props: Phase1FoundationViewProps) {
                 Escríbenos
               </a>
               <span aria-hidden="true" className="text-[var(--room-ink-soft)]/50">·</span>
+              <a
+                href={BRAND_CONFIG.facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="footer-facebook"
+                className="hover:text-[var(--room-ink)] transition-colors"
+              >
+                Fan page
+              </a>
+              <span aria-hidden="true" className="text-[var(--room-ink-soft)]/50">·</span>
               {/* Acceso discreto del administrador (requiere su propio código) */}
               <button
                 type="button"

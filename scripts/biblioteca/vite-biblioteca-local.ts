@@ -55,6 +55,41 @@ export function bibliotecaLocal(repoRoot: string): Plugin {
       });
       server.middlewares.use('/api/gratitud', (_req, res) => json(res, 200, { ok: true, muro }));
 
+      // Publicaciones para la fan page en memoria (sin Facebook ni IA en desarrollo).
+      const pendientesFb: Array<Record<string, string>> = [];
+      const leerCuerpo = (req: import('node:http').IncomingMessage) =>
+        new Promise<Record<string, unknown>>((resolve) => {
+          let raw = '';
+          req.on('data', (c) => (raw += c));
+          req.on('end', () => resolve(JSON.parse(raw || '{}')));
+        });
+      server.middlewares.use('/api/compartir-admin', async (req, res) => {
+        const body = await leerCuerpo(req);
+        if (body.codigo !== 'dev') return json(res, 401, { ok: false, error: 'Código de administrador incorrecto.' });
+        if (body.accion === 'descartar' || body.accion === 'marcar') {
+          const i = pendientesFb.findIndex((p) => p.id === body.id);
+          if (i >= 0) pendientesFb.splice(i, 1);
+        }
+        if (body.accion === 'resumen') return json(res, 400, { ok: false, error: 'La IA no está configurada.' });
+        if (body.accion === 'publicar') return json(res, 400, { ok: false, error: 'Facebook no está conectado todavía.' });
+        return json(res, 200, { ok: true, pendientes: pendientesFb, facebook: false, ia: false });
+      });
+      server.middlewares.use('/api/compartir', async (req, res) => {
+        const body = await leerCuerpo(req);
+        const nombre = formatGratitudeName(String(body.nombre ?? ''), String(body.apellido ?? ''));
+        if (!nombre) return json(res, 400, { ok: false, error: 'Escribe tu nombre y apellido (solo letras).' });
+        pendientesFb.unshift({
+          id: `dev-${Date.now()}`,
+          libroId: String(body.libroId ?? ''),
+          titulo: String(body.titulo ?? ''),
+          autor: String(body.autor ?? ''),
+          nombre,
+          comentario: String(body.comentario ?? '').slice(0, 240),
+          fecha: new Date().toISOString().slice(0, 10),
+        });
+        return json(res, 200, { ok: true, nombre });
+      });
+
       server.middlewares.use('/portada', (req, res, next) => {
         const nombre = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname).replace(/^\//, '');
         const archivo = path.join(salida, 'portadas', nombre);

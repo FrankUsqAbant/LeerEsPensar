@@ -9,8 +9,8 @@ reanudable y nada modifica la carpeta original.
 |---|---|---|---|
 | 1 | **Inventario**: cuántos PDFs, peso, duplicados y dañados | `scripts/biblioteca/inventario.mjs` | Listo |
 | 2 | **Catálogo**: título, autor y páginas de cada PDF; revisión de dudosos | `scripts/biblioteca/catalogo.py` + `correcciones.json` | Listo |
-| 3 | **Subida a R2** con wrangler (reanudable, usa la sesión de `wrangler login`) | `scripts/biblioteca/subir.mjs` | En curso |
-| 4 | **Sitio con la biblioteca**: catálogo privado, descarga directa, estante por partes | `publicar-catalogo.mjs` + `functions/api/catalogo.ts` | Listo (falta publicar) |
+| 3 | **Subida a R2** con wrangler (reanudable, usa la sesión de `wrangler login`) | `scripts/biblioteca/subir.mjs` | Listo (1764) |
+| 4 | **Sitio con la biblioteca**: catálogo privado, descarga directa, estante de dos repisas | `publicar-catalogo.mjs` + `functions/api/catalogo.ts` | Listo |
 
 ## 1. Inventario
 
@@ -79,8 +79,8 @@ node scripts/biblioteca/publicar-catalogo.mjs --subir    # y lo sube a R2 como c
 - El sitio lo pide a `/api/catalogo` (función privada: exige el código de acceso, igual que los PDFs).
 - La descarga es directa: `/pdf/libros/<slug>.pdf?descargar=1&nombre=Título - Autor`.
 - Si el catálogo no responde, el estante muestra la selección original de 16 libros.
-- Estante: "Recién llegados" (24) y luego repisas por autor ("Autores A – C"…, ~150 libros,
-  sin partir a un autor) y "Autor desconocido". Todos los libros están en alguna repisa.
+- Estante en dos repisas: "Portadas destacadas" (portadas reales, de la más vistosa) y
+  "Toda la biblioteca, de la A a la Z" (todos; "Autor desconocido" al final).
 - Cada repisa dibuja solo los libros visibles (`src/hooks/useShelfScroller.ts`): flechas con
   paso suave, mantener presionado para deslizar, arrastrar con el mouse con inercia.
 
@@ -108,6 +108,17 @@ node scripts/biblioteca/publicar-catalogo.mjs --subir
   `/api/gratitud-admin` (con `ADMIN_CODE`, intentos fallidos limitados como el ingreso).
 - Cambiar el código de administrador: `npx wrangler pages secret put ADMIN_CODE --project-name leer-es-pensar`.
 - En desarrollo el muro vive en memoria y el código de prueba es `dev`.
+
+## Fan page: "lo leí"
+
+- El lector, en la ficha → Compartir → **Publicar que lo leí** (nombre, apellido y comentario opcional).
+  Queda pendiente; se guarda solo "Nombre + inicial". Máximo 5 por hora por IP.
+- Frank, en «adm» → **Publicaciones**: ve la tarjeta (portada real + resumen + "María G. lo leyó"),
+  escribe o pide a la IA un resumen y publica. Sin Facebook conectado: descargar tarjeta + copiar texto.
+- Funciones: `/api/compartir` (lector) y `/api/compartir-admin` (con `ADMIN_CODE`).
+- Opcional, para publicar solo y sugerir resúmenes (secretos de Cloudflare Pages):
+  - `FB_PAGE_ID`, `FB_PAGE_TOKEN` (token de la página con `pages_manage_posts`), `FB_GRAPH_VERSION` (por defecto `v23.0`).
+  - `GEMINI_API_KEY` (gratis en Google AI Studio) y `GEMINI_MODEL` (por defecto `gemini-2.5-flash`).
 
 ## Compresión: se suben los originales
 

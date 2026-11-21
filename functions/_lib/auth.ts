@@ -13,6 +13,14 @@ export interface SessionEnv {
   /** Código del administrador (Frank) para registrar donantes en el muro de gratitud. */
   ADMIN_CODE?: string;
   GRATITUD?: KVNamespace;
+  /** Fan page de Facebook (opcional): con ambos, las publicaciones aprobadas salen solas. */
+  FB_PAGE_ID?: string;
+  FB_PAGE_TOKEN?: string;
+  /** Versión de la Graph API (Meta retira cada versión ~2 años después). */
+  FB_GRAPH_VERSION?: string;
+  /** IA para sugerir resúmenes (opcional, Gemini gratis). */
+  GEMINI_API_KEY?: string;
+  GEMINI_MODEL?: string;
 }
 
 function textBytes(value: string): Uint8Array {
