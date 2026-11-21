@@ -368,7 +368,7 @@ export function BotanicalBookshelfHero({
             Leer es <em className="italic font-normal text-[var(--room-accent)]">pensar.</em>
           </h1>
           <p className="mt-3 sm:mt-4 text-[13px] sm:text-[15px] text-[var(--room-ink-soft)]">
-            Clásicos literarios para descargar en PDF, gratis.
+            Cada libro es una conversación que te espera. Llévatelo gratis.
           </p>
         </div>
 

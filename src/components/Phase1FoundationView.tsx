@@ -95,7 +95,7 @@ export function Phase1FoundationView(_props: Phase1FoundationViewProps) {
               ❦
             </p>
             <p className="mt-5 font-serif italic text-lg sm:text-xl text-[var(--room-ink)] leading-snug">
-              Hecha en {BRAND_CONFIG.location}, para que leer siga siendo gratis.
+              Hecha con cariño en {BRAND_CONFIG.location}, para que a nadie le falte un libro.
             </p>
             {muro.length > 0 && (
               <p className="mt-2 text-[13px]" data-testid="footer-gratitud">
